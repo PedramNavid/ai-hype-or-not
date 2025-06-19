@@ -18,7 +18,7 @@ export default function AboutPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Our Mission</h2>
             <p className="text-gray-600 leading-relaxed mb-4">
               The AI space is moving incredibly fast, with new tools launching every week promising to revolutionize how
-              we work. But not all AI tools are created equal, and the hype doesn't always match the reality.
+              we work. But not all AI tools are created equal, and the hype doesn&apos;t always match the reality.
             </p>
             <p className="text-gray-600 leading-relaxed mb-4">
               AI Hype Or Not exists to cut through the marketing noise and provide honest, practical reviews of AI

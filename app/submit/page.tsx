@@ -11,7 +11,7 @@ export default function SubmitPage() {
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">Submit a Tool</h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Know an AI tool that deserves a review? Submit it here and I'll personally test it and share my honest
+              Know an AI tool that deserves a review? Submit it here and I&apos;ll personally test it and share my honest
               verdict.
             </p>
           </div>
@@ -31,7 +31,7 @@ export default function SubmitPage() {
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-orange-500 font-bold mt-1">•</span>
-                <p>I'll test each tool for at least 1-2 weeks before reviewing</p>
+                <p>I&apos;ll test each tool for at least 1-2 weeks before reviewing</p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-orange-500 font-bold mt-1">•</span>

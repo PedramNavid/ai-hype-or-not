@@ -56,7 +56,7 @@ export function SubmitForm() {
         <div className="text-green-600 text-4xl mb-4">✓</div>
         <h3 className="text-2xl font-bold text-gray-900 mb-4">Submission Received!</h3>
         <p className="text-gray-600 mb-6">
-          Thanks for the suggestion! I'll review <strong>{formData.toolName}</strong> and get back to you within 2-3
+          Thanks for the suggestion! I&apos;ll review <strong>{formData.toolName}</strong> and get back to you within 2-3
           weeks with my verdict.
         </p>
         <Button
@@ -230,7 +230,7 @@ export function SubmitForm() {
       </div>
 
       <p className="text-sm text-gray-500 text-center">
-        I'll personally review every submission and get back to you within 2-3 weeks with my verdict.
+        I&apos;ll personally review every submission and get back to you within 2-3 weeks with my verdict.
       </p>
     </form>
   )
