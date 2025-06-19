@@ -37,6 +37,12 @@ export function SubmitForm() {
     setIsSubmitting(true)
 
     try {
+      // Add https:// if no protocol is specified
+      let websiteUrl = formData.website
+      if (websiteUrl && !websiteUrl.match(/^https?:\/\//)) {
+        websiteUrl = `https://${websiteUrl}`
+      }
+
       const response = await fetch('/api/submissions', {
         method: 'POST',
         headers: {
@@ -44,7 +50,7 @@ export function SubmitForm() {
         },
         body: JSON.stringify({
           tool_name: formData.toolName,
-          website_url: formData.website,
+          website_url: websiteUrl,
           category: formData.category,
           description: formData.description,
           why_review: formData.whyReview,
@@ -129,14 +135,14 @@ export function SubmitForm() {
             Website URL *
           </label>
           <input
-            type="url"
+            type="text"
             id="website"
             name="website"
             required
             value={formData.website}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            placeholder="https://..."
+            placeholder="e.g., google.com or https://google.com"
           />
         </div>
       </div>

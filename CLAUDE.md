@@ -37,6 +37,7 @@ psql $DATABASE_URL
 - **Framework**: Next.js 15.2.4 with App Router
 - **Language**: TypeScript
 - **Database**: PostgreSQL (Neon) - access via `psql` with env vars from `.env.local`
+- **Authentication**: NextAuth.js with GitHub/Google OAuth
 - **Styling**: Tailwind CSS v4 with PostCSS, tw-animate-css for animations
 - **UI Components**: Custom components following shadcn/ui patterns with Radix UI primitives
 - **Icons**: Lucide React
@@ -46,6 +47,8 @@ psql $DATABASE_URL
   - `app/product/[slug]/`: Dynamic product detail pages
   - `app/submit/`: Tool submission form page
   - `app/about/`: About page explaining review process
+  - `app/admin/`: Admin panel for content management (protected routes)
+  - `app/api/auth/`: NextAuth.js authentication endpoints
 - `components/`: React components
   - `components/ui/`: Base UI components (shadcn/ui pattern)
 - `lib/`: Utility functions (mainly `cn` for classnames)
@@ -75,3 +78,46 @@ psql $DATABASE_URL
 - `db/seed-data.sql`: Initial data for seeding
 - `app/api/products/`: API routes for product data
 - `app/api/submissions/`: API route for form submissions
+- `app/admin/`: Admin panel for content management
+- `app/api/admin/`: Admin-only API routes for dashboard stats
+
+## Admin Panel
+
+The site includes a protected admin panel for content management at `/admin`. 
+
+### Authentication
+- Uses NextAuth.js with GitHub and Google OAuth providers
+- Only authorized email addresses can access the admin panel
+- No password authentication - OAuth only
+
+### Features
+- Dashboard with product and submission statistics
+- Product management (planned)
+- Submission review (planned)
+- Protected routes with middleware
+
+### Required Environment Variables
+Add these to your `.env.local` file:
+
+```bash
+# NextAuth.js
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-secret-key-here
+
+# GitHub OAuth
+GITHUB_ID=your-github-oauth-app-id
+GITHUB_SECRET=your-github-oauth-app-secret
+
+# Google OAuth  
+GOOGLE_CLIENT_ID=your-google-oauth-client-id
+GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
+
+# Admin Access
+ADMIN_EMAILS=your-email@example.com,another-admin@example.com
+```
+
+### Setup Instructions
+1. Create GitHub OAuth App at https://github.com/settings/applications/new
+2. Create Google OAuth credentials at https://console.cloud.google.com/
+3. Add your email address to `ADMIN_EMAILS` environment variable
+4. Access admin panel at `/admin` after authentication

@@ -2,11 +2,12 @@ import { Header } from "@/components/header"
 import { Star, ExternalLink, Calendar, User } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { ScreenshotGallery } from "@/components/screenshot-gallery"
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 async function getProduct(slug: string) {
@@ -22,7 +23,8 @@ async function getProduct(slug: string) {
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await getProduct(params.slug)
+  const { slug } = await params
+  const product = await getProduct(slug)
 
   if (!product) {
     notFound()
@@ -43,11 +45,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         {/* Hero Section */}
         <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden mb-12">
-          <div className="aspect-video bg-gray-100 relative">
+          <div className="aspect-video bg-gray-100 relative overflow-hidden group">
             <img
               src={product.screenshots?.[0]?.image_url || "/screenshots/placeholder.svg"}
               alt={product.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
             <div className="absolute top-6 right-6">
               <div
@@ -121,7 +123,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div className="bg-white border border-gray-200 rounded-2xl p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Full Review</h2>
               <div className="prose prose-gray max-w-none">
-                {product.full_review.split("\n\n").map((paragraph, index) => (
+                {product.full_review.split("\n\n").map((paragraph: string, index: number) => (
                   <p key={index} className="text-gray-600 mb-4 leading-relaxed">
                     {paragraph}
                   </p>
@@ -133,20 +135,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {product.screenshots && product.screenshots.length > 0 && (
               <div className="bg-white border border-gray-200 rounded-2xl p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Screenshots</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {product.screenshots.map((screenshot, index) => (
-                    <div
-                      key={index}
-                      className="aspect-video bg-gray-100 rounded-xl overflow-hidden border border-gray-200"
-                    >
-                      <img
-                        src={screenshot.image_url || "/screenshots/placeholder.svg"}
-                        alt={screenshot.caption || `${product.name} screenshot ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
+                <ScreenshotGallery screenshots={product.screenshots} productName={product.name} />
               </div>
             )}
           </div>
@@ -158,7 +147,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="bg-white border border-gray-200 rounded-2xl p-6">
                 <h3 className="text-xl font-bold text-green-600 mb-4">Pros</h3>
                 <ul className="space-y-3">
-                  {product.pros.map((pro, index) => (
+                  {product.pros.map((pro: string, index: number) => (
                     <li key={index} className="text-gray-600 text-sm flex items-start gap-3">
                       <span className="text-green-600 mt-1 font-bold">+</span>
                       {pro}
@@ -173,7 +162,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="bg-white border border-gray-200 rounded-2xl p-6">
                 <h3 className="text-xl font-bold text-red-500 mb-4">Cons</h3>
                 <ul className="space-y-3">
-                  {product.cons.map((con, index) => (
+                  {product.cons.map((con: string, index: number) => (
                     <li key={index} className="text-gray-600 text-sm flex items-start gap-3">
                       <span className="text-red-500 mt-1 font-bold">-</span>
                       {con}
