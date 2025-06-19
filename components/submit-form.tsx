@@ -36,11 +36,35 @@ export function SubmitForm() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const response = await fetch('/api/submissions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tool_name: formData.toolName,
+          website_url: formData.website,
+          category: formData.category,
+          description: formData.description,
+          why_review: formData.whyReview,
+          your_role: formData.yourName,
+          email: formData.yourEmail,
+          additional_info: formData.additionalNotes,
+        }),
+      })
 
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+      if (!response.ok) {
+        throw new Error('Failed to submit')
+      }
+
+      setIsSubmitted(true)
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      // You could add error state handling here
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

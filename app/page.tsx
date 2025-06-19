@@ -1,76 +1,32 @@
 import { ProductCard } from "@/components/product-card"
 import { Header } from "@/components/header"
 
-const products = [
-  {
-    id: "cursor",
-    name: "Cursor",
-    slug: "cursor",
-    category: "Code Editor",
-    rating: "LEGIT",
-    hyeScore: 5,
-    description: "AI-powered code editor that predicts your next edit",
-    image: "/placeholder.svg?height=200&width=300",
-    tags: ["Coding", "AI Assistant", "Editor"],
-  },
-  {
-    id: "windsurf",
-    name: "Windsurf",
-    slug: "windsurf",
-    category: "Code Editor",
-    rating: "LEGIT",
-    hyeScore: 4,
-    description: "AI-first IDE for building software faster",
-    image: "/placeholder.svg?height=200&width=300",
-    tags: ["IDE", "AI Assistant", "Development"],
-  },
-  {
-    id: "graphite",
-    name: "Graphite",
-    slug: "graphite",
-    category: "Developer Tools",
-    rating: "OVERHYPED",
-    hyeScore: 2,
-    description: "Modern code review and CI/CD platform",
-    image: "/placeholder.svg?height=200&width=300",
-    tags: ["Code Review", "CI/CD", "Collaboration"],
-  },
-  {
-    id: "lovable",
-    name: "Lovable",
-    slug: "lovable",
-    category: "No-Code",
-    rating: "LEGIT",
-    hyeScore: 4,
-    description: "AI-powered app builder for rapid prototyping",
-    image: "/placeholder.svg?height=200&width=300",
-    tags: ["No-Code", "App Builder", "Prototyping"],
-  },
-  {
-    id: "github-copilot",
-    name: "GitHub Copilot",
-    slug: "github-copilot",
-    category: "AI Assistant",
-    rating: "LEGIT",
-    hyeScore: 4,
-    description: "AI pair programmer that suggests code completions",
-    image: "/placeholder.svg?height=200&width=300",
-    tags: ["AI Assistant", "Code Completion", "GitHub"],
-  },
-  {
-    id: "replit-agent",
-    name: "Replit Agent",
-    slug: "replit-agent",
-    category: "AI Assistant",
-    rating: "LEGIT",
-    hyeScore: 3,
-    description: "AI agent that builds software from natural language",
-    image: "/placeholder.svg?height=200&width=300",
-    tags: ["AI Agent", "Natural Language", "Development"],
-  },
-]
+interface Product {
+  id: string
+  name: string
+  slug: string
+  category: string
+  rating: "LEGIT" | "OVERHYPED"
+  hyeScore: number
+  description: string
+  image: string
+  tags: string[]
+}
 
-export default function HomePage() {
+async function getProducts(): Promise<Product[]> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`, {
+    cache: 'no-store' // Always fetch fresh data
+  })
+  
+  if (!res.ok) {
+    throw new Error('Failed to fetch products')
+  }
+  
+  return res.json()
+}
+
+export default async function HomePage() {
+  const products = await getProducts()
   const legitProducts = products.filter((p) => p.rating === "LEGIT")
   const overhypedProducts = products.filter((p) => p.rating === "OVERHYPED")
 

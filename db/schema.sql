@@ -16,9 +16,6 @@ CREATE TABLE products (
   hype_score INTEGER NOT NULL CHECK (hype_score >= 1 AND hype_score <= 5),
   category VARCHAR(100) NOT NULL,
   website_url VARCHAR(500),
-  pricing VARCHAR(100),
-  primary_use_case TEXT,
-  tldr TEXT NOT NULL,
   full_review TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

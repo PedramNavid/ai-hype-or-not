@@ -25,9 +25,6 @@ export interface Product {
   hype_score: number;
   category: string;
   website_url?: string;
-  pricing?: string;
-  primary_use_case?: string;
-  tldr: string;
   full_review: string;
   created_at: Date;
   updated_at: Date;
@@ -75,28 +72,28 @@ export interface Submission {
 
 // Helper function to get a product with all related data
 export async function getProductWithDetails(slug: string) {
-  const [product] = await sql<Product[]>`
+  const [product] = await sql`
     SELECT * FROM products WHERE slug = ${slug} LIMIT 1
   `;
-  
+
   if (!product) {
     return null;
   }
 
   const [screenshots, pros, cons] = await Promise.all([
-    sql<ProductScreenshot[]>`
-      SELECT * FROM product_screenshots 
-      WHERE product_id = ${product.id} 
+    sql`
+      SELECT * FROM product_screenshots
+      WHERE product_id = ${product.id}
       ORDER BY display_order, id
     `,
-    sql<ProductPro[]>`
-      SELECT * FROM product_pros 
-      WHERE product_id = ${product.id} 
+    sql`
+      SELECT * FROM product_pros
+      WHERE product_id = ${product.id}
       ORDER BY display_order, id
     `,
-    sql<ProductCon[]>`
-      SELECT * FROM product_cons 
-      WHERE product_id = ${product.id} 
+    sql`
+      SELECT * FROM product_cons
+      WHERE product_id = ${product.id}
       ORDER BY display_order, id
     `
   ]);
@@ -111,17 +108,17 @@ export async function getProductWithDetails(slug: string) {
 
 // Helper function to get all products
 export async function getAllProducts() {
-  return sql<Product[]>`
-    SELECT * FROM products 
+  return sql`
+    SELECT * FROM products
     ORDER BY created_at DESC
   `;
 }
 
 // Helper function to create a submission
 export async function createSubmission(data: Omit<Submission, 'id' | 'status' | 'created_at' | 'updated_at'>) {
-  const [submission] = await sql<Submission[]>`
+  const [submission] = await sql`
     INSERT INTO submissions (
-      tool_name, website_url, category, description, 
+      tool_name, website_url, category, description,
       why_review, your_role, email, additional_info
     ) VALUES (
       ${data.tool_name}, ${data.website_url}, ${data.category}, ${data.description},
@@ -129,6 +126,6 @@ export async function createSubmission(data: Omit<Submission, 'id' | 'status' | 
     )
     RETURNING *
   `;
-  
+
   return submission;
 }

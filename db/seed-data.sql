@@ -2,13 +2,12 @@
 TRUNCATE products, product_screenshots, product_pros, product_cons, submissions RESTART IDENTITY CASCADE;
 
 -- Insert products
-INSERT INTO products (name, slug, tagline, description, verdict, hype_score, category, website_url, pricing, primary_use_case, tldr, full_review) VALUES
+INSERT INTO products (name, slug, tagline, description, verdict, hype_score, category, website_url, full_review) VALUES
 -- Cursor
-('Cursor', 'cursor', 'The AI-powered code editor that actually delivers', 
+('Cursor', 'cursor', 'The AI-powered code editor that actually delivers',
 'AI-enhanced code editor with intelligent autocomplete',
-'LEGIT', 5, 'Code Editor', 
-'https://cursor.com', 'Free / $20/month Pro', 'AI-powered code editing and development',
-'Cursor is the real deal. The AI integration feels natural and actually makes you more productive.',
+'LEGIT', 5, 'Code Editor',
+'https://cursor.com',
 'Cursor has quickly become my go-to code editor after years of using VS Code. The AI features aren''t just bolted on—they''re deeply integrated in a way that feels natural and actually improves productivity.
 
 What sets Cursor apart from other AI coding tools is its seamless integration. The AI suggestions feel natural and don''t interrupt your flow. The chat interface is incredibly powerful for explaining complex code or getting help with debugging.
@@ -21,8 +20,7 @@ This is the future of coding, and it''s available today.'),
 ('Windsurf', 'windsurf', 'AI-first IDE for modern development',
 'AI-first IDE for building software faster',
 'LEGIT', 4, 'Code Editor',
-'https://windsurf.com', 'Free trial / Subscription', 'AI-first software development',
-'Solid AI-first IDE with great project understanding, though ecosystem still maturing.',
+'https://windsurf.com',
 'Windsurf positions itself as an AI-first IDE, and it largely delivers on that promise. The interface is clean and modern, clearly designed with AI workflows in mind.
 
 The AI assistant is quite capable and integrates well with the development environment. Code suggestions are generally accurate, and the ability to have contextual conversations about your codebase is valuable.
@@ -37,8 +35,7 @@ That said, the trajectory is promising, and for teams looking to embrace AI-firs
 ('Graphite', 'graphite', 'Stacked diffs for modern code review',
 'Modern code review and CI/CD platform',
 'OVERHYPED', 2, 'Developer Tools',
-'https://graphite.dev', 'Free for small teams / Enterprise pricing', 'Code review and CI/CD',
-'Overcomplicated solution to a problem that doesn''t really exist. Stick with GitHub.',
+'https://graphite.dev',
 'Graphite promises to modernize the code review process, but after extensive testing, I''m not convinced it delivers enough value to justify switching from established tools.
 
 The stacked diffs concept is interesting in theory, but in practice, it adds complexity without clear benefits for most development workflows. The learning curve is steep, and team adoption has been challenging.
@@ -53,8 +50,7 @@ For teams already happy with their current code review process, Graphite doesn''
 ('Lovable', 'lovable', 'Build apps with AI, no coding required',
 'AI-powered app builder for rapid prototyping',
 'LEGIT', 4, 'No-Code',
-'https://lovable.dev', 'Free tier / Pay as you go', 'Rapid app prototyping and MVPs',
-'Impressive no-code platform that actually produces production-ready applications.',
+'https://lovable.dev',
 'Lovable represents a significant leap forward in the no-code space. Unlike many no-code tools that feel limiting, Lovable uses AI to create surprisingly sophisticated applications.
 
 The natural language interface is intuitive, and the AI understands complex requirements better than expected. I was able to build a functional SaaS MVP in hours, not days, with features that would typically require significant coding.
@@ -69,8 +65,7 @@ While it can''t replace custom development for complex applications, Lovable is 
 ('GitHub Copilot', 'github-copilot', 'Your AI pair programmer',
 'AI pair programmer that suggests code completions',
 'LEGIT', 4, 'AI Assistant',
-'https://github.com/features/copilot', '$10/month individual', 'Code completion and generation',
-'The OG AI coding assistant still delivers consistent value for everyday development.',
+'https://github.com/features/copilot',
 'GitHub Copilot might not be the newest AI coding tool anymore, but it remains one of the most reliable and valuable.
 
 The autocomplete suggestions are consistently helpful, especially for boilerplate code, test writing, and common patterns. It excels at understanding context from comments and function names, often generating exactly what you intended to write.
@@ -85,8 +80,7 @@ At $10/month for individuals, it easily pays for itself in time saved. For teams
 ('Replit Agent', 'replit-agent', 'AI that builds complete applications',
 'AI agent that builds software from natural language',
 'LEGIT', 3, 'AI Assistant',
-'https://replit.com/agent', 'Included with Replit subscription', 'Automated app development',
-'Ambitious AI agent that can build simple apps autonomously, though results vary.',
+'https://replit.com/agent',
 'Replit Agent represents an ambitious attempt to automate software development through natural language instructions. The concept is fascinating: describe what you want, and the AI builds it.
 
 In practice, results are mixed but often impressive. For simple applications like landing pages, basic CRUD apps, or prototype tools, Replit Agent can produce working code in minutes. The integration with Replit''s environment means you can immediately run and test the generated applications.

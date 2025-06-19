@@ -10,7 +10,9 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 tracking-tight">About AI Hype Or Not</h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Cutting through the AI noise with honest, hands-on reviews
+              Lovingly handcrafted hands-on reviews of AI tools, to cut through the noise.
+              The only thing that&apos;s AI-generated is the website, the rest is all based on real-world testing
+              by yours truly, Pedram Navid.
             </p>
           </div>
 
@@ -25,7 +27,7 @@ export default function AboutPage() {
               tools. Every tool is personally tested in real-world scenarios, not just demos or marketing materials.
             </p>
             <p className="text-gray-600 leading-relaxed">
-              Our goal is simple: help you decide which AI tools are worth your time and money, and which ones are just
+              My goal is simple: help you decide which AI tools are worth your time and money, and which ones are just
               hype.
             </p>
           </div>
