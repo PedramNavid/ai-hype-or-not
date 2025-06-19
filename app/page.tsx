@@ -14,8 +14,40 @@ interface Product {
 }
 
 async function getProducts(): Promise<Product[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`, {
-    cache: 'no-store' // Always fetch fresh data
+  // For server-side rendering, use the internal API directly
+  if (typeof window === 'undefined') {
+    // We're on the server, import and call the API function directly
+    const { sql } = await import('@/lib/db')
+    
+    try {
+      const products = await sql`
+        SELECT 
+          id,
+          name,
+          slug,
+          verdict as rating,
+          hype_score as "hyeScore",
+          tagline as description,
+          COALESCE(
+            (SELECT image_url FROM product_screenshots WHERE product_id = products.id ORDER BY display_order LIMIT 1),
+            '/placeholder-product.jpg'
+          ) as image,
+          ARRAY['AI Tools'] as tags
+        FROM products 
+        ORDER BY created_at DESC
+      `
+      
+      return products as Product[]
+    } catch (error) {
+      console.error('Database error:', error)
+      return []
+    }
+  }
+  
+  // Client-side fetch
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || window.location.origin
+  const res = await fetch(`${baseUrl}/api/products`, {
+    cache: 'no-store'
   })
   
   if (!res.ok) {

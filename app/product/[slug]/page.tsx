@@ -11,7 +11,22 @@ interface ProductPageProps {
 }
 
 async function getProduct(slug: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products/${slug}`, {
+  // For server-side rendering, use the internal API directly
+  if (typeof window === 'undefined') {
+    // We're on the server, import and call the function directly
+    const { getProductWithDetails } = await import('@/lib/db')
+    
+    try {
+      return await getProductWithDetails(slug)
+    } catch (error) {
+      console.error('Database error:', error)
+      return null
+    }
+  }
+  
+  // Client-side fetch
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || window.location.origin
+  const res = await fetch(`${baseUrl}/api/products/${slug}`, {
     cache: 'no-store'
   })
 
