@@ -19,17 +19,24 @@ import { Button } from "@/components/ui/button"
 
 interface Submission {
   id: number
-  tool_name: string
-  website_url: string
+  submission_type: 'legacy' | 'workflow'
+  title: string  // tool_name for legacy, title for workflow
+  website_url?: string
   category: string
   description: string
   why_review: string
   your_role?: string
   email?: string
   additional_info?: string
-  status: 'pending' | 'reviewing' | 'reviewed' | 'rejected'
+  status: 'pending' | 'reviewing' | 'reviewed' | 'rejected' | 'approved'
   created_at: string
   updated_at: string
+  // Workflow-specific fields
+  workflow_type?: string
+  content?: string
+  tools_used?: string
+  github_url?: string
+  reviewer_notes?: string
 }
 
 export default function SubmissionsManagement() {
@@ -37,7 +44,7 @@ export default function SubmissionsManagement() {
   const router = useRouter()
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'pending' | 'reviewing' | 'reviewed' | 'rejected'>('all')
+  const [filter, setFilter] = useState<'all' | 'pending' | 'reviewing' | 'reviewed' | 'rejected' | 'approved'>('all')
 
   useEffect(() => {
     if (status === "loading") return
@@ -64,19 +71,22 @@ export default function SubmissionsManagement() {
     }
   }
 
-  const updateSubmissionStatus = async (submissionId: number, newStatus: string) => {
+  const updateSubmissionStatus = async (submission: Submission, newStatus: string) => {
     try {
-      const response = await fetch(`/api/admin/submissions/${submissionId}`, {
+      const response = await fetch(`/api/admin/submissions/${submission.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ 
+          status: newStatus,
+          submission_type: submission.submission_type
+        }),
       })
 
       if (response.ok) {
         setSubmissions(submissions.map(sub => 
-          sub.id === submissionId 
+          sub.id === submission.id 
             ? { ...sub, status: newStatus as Submission['status'], updated_at: new Date().toISOString() }
             : sub
         ))
@@ -89,18 +99,18 @@ export default function SubmissionsManagement() {
     }
   }
 
-  const deleteSubmission = async (submissionId: number, toolName: string) => {
-    if (!confirm(`Are you sure you want to delete the submission for "${toolName}"? This cannot be undone.`)) {
+  const deleteSubmission = async (submission: Submission) => {
+    if (!confirm(`Are you sure you want to delete the submission "${submission.title}"? This cannot be undone.`)) {
       return
     }
 
     try {
-      const response = await fetch(`/api/admin/submissions/${submissionId}`, {
+      const response = await fetch(`/api/admin/submissions/${submission.id}?type=${submission.submission_type}`, {
         method: 'DELETE',
       })
 
       if (response.ok) {
-        setSubmissions(submissions.filter(sub => sub.id !== submissionId))
+        setSubmissions(submissions.filter(sub => sub.id !== submission.id))
       } else {
         alert('Failed to delete submission')
       }
@@ -118,6 +128,8 @@ export default function SubmissionsManagement() {
         return <MessageSquare className="w-4 h-4 text-blue-500" />
       case 'reviewed':
         return <CheckCircle className="w-4 h-4 text-green-500" />
+      case 'approved':
+        return <CheckCircle className="w-4 h-4 text-green-600" />
       case 'rejected':
         return <XCircle className="w-4 h-4 text-red-500" />
       default:
@@ -133,6 +145,8 @@ export default function SubmissionsManagement() {
         return 'bg-blue-100 text-blue-800'
       case 'reviewed':
         return 'bg-green-100 text-green-800'
+      case 'approved':
+        return 'bg-green-100 text-green-900'
       case 'rejected':
         return 'bg-red-100 text-red-800'
       default:
@@ -175,7 +189,7 @@ export default function SubmissionsManagement() {
             
             {/* Filter Tabs */}
             <div className="flex bg-gray-100 rounded-lg p-1">
-              {['all', 'pending', 'reviewing', 'reviewed', 'rejected'].map((filterOption) => (
+              {['all', 'pending', 'reviewing', 'reviewed', 'approved', 'rejected'].map((filterOption) => (
                 <button
                   key={filterOption}
                   onClick={() => setFilter(filterOption as typeof filter)}
@@ -220,13 +234,33 @@ export default function SubmissionsManagement() {
               <div key={submission.id} className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">
-                    <h3 className="text-xl font-semibold text-gray-900">{submission.tool_name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xl font-semibold text-gray-900">{submission.title}</h3>
+                      <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
+                        submission.submission_type === 'workflow' 
+                          ? 'bg-blue-100 text-blue-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {submission.submission_type === 'workflow' ? 'Workflow' : 'Tool'}
+                      </span>
+                    </div>
                     {submission.website_url && (
                       <a
                         href={submission.website_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
+                    {submission.github_url && (
+                      <a
+                        href={submission.github_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800"
+                        title="GitHub Repository"
                       >
                         <ExternalLink className="w-4 h-4" />
                       </a>
@@ -243,7 +277,9 @@ export default function SubmissionsManagement() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Category</h4>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">
+                      {submission.submission_type === 'workflow' ? 'Workflow Type' : 'Category'}
+                    </h4>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                       {submission.category}
                     </span>
@@ -256,6 +292,13 @@ export default function SubmissionsManagement() {
                       {new Date(submission.created_at).toLocaleDateString()}
                     </div>
                   </div>
+
+                  {submission.submission_type === 'workflow' && submission.tools_used && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Tools Used</h4>
+                      <p className="text-sm text-gray-600">{submission.tools_used}</p>
+                    </div>
+                  )}
 
                   {submission.your_role && (
                     <div>
@@ -305,14 +348,14 @@ export default function SubmissionsManagement() {
                     {submission.status === 'pending' && (
                       <>
                         <Button
-                          onClick={() => updateSubmissionStatus(submission.id, 'reviewing')}
+                          onClick={() => updateSubmissionStatus(submission, 'reviewing')}
                           size="sm"
                           className="bg-blue-600 hover:bg-blue-700"
                         >
                           Start Review
                         </Button>
                         <Button
-                          onClick={() => updateSubmissionStatus(submission.id, 'rejected')}
+                          onClick={() => updateSubmissionStatus(submission, 'rejected')}
                           size="sm"
                           variant="outline"
                           className="text-red-600 border-red-300 hover:bg-red-50"
@@ -325,14 +368,14 @@ export default function SubmissionsManagement() {
                     {submission.status === 'reviewing' && (
                       <>
                         <Button
-                          onClick={() => updateSubmissionStatus(submission.id, 'reviewed')}
+                          onClick={() => updateSubmissionStatus(submission, submission.submission_type === 'workflow' ? 'approved' : 'reviewed')}
                           size="sm"
                           className="bg-green-600 hover:bg-green-700"
                         >
-                          Mark as Reviewed
+                          {submission.submission_type === 'workflow' ? 'Approve' : 'Mark as Reviewed'}
                         </Button>
                         <Button
-                          onClick={() => updateSubmissionStatus(submission.id, 'pending')}
+                          onClick={() => updateSubmissionStatus(submission, 'pending')}
                           size="sm"
                           variant="outline"
                         >
@@ -341,9 +384,9 @@ export default function SubmissionsManagement() {
                       </>
                     )}
 
-                    {(submission.status === 'reviewed' || submission.status === 'rejected') && (
+                    {(submission.status === 'reviewed' || submission.status === 'rejected' || submission.status === 'approved') && (
                       <Button
-                        onClick={() => updateSubmissionStatus(submission.id, 'pending')}
+                        onClick={() => updateSubmissionStatus(submission, 'pending')}
                         size="sm"
                         variant="outline"
                       >
@@ -353,7 +396,7 @@ export default function SubmissionsManagement() {
                   </div>
 
                   <Button
-                    onClick={() => deleteSubmission(submission.id, submission.tool_name)}
+                    onClick={() => deleteSubmission(submission)}
                     size="sm"
                     variant="outline"
                     className="text-red-600 border-red-300 hover:bg-red-50"

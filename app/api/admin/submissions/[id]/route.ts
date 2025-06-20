@@ -13,15 +13,32 @@ export async function PUT(
     }
 
     const data = await request.json()
+    const { submission_type } = data
 
-    // Update submission status
-    const [updatedSubmission] = await sql`
-      UPDATE submissions SET
-        status = ${data.status},
-        updated_at = NOW()
-      WHERE id = ${submissionId}
-      RETURNING *
-    `
+    let updatedSubmission;
+
+    if (submission_type === 'workflow') {
+      // Update workflow submission
+      const [result] = await sql`
+        UPDATE workflow_submissions SET
+          status = ${data.status},
+          reviewer_notes = ${data.reviewer_notes || null},
+          updated_at = NOW()
+        WHERE id = ${submissionId}
+        RETURNING *
+      `
+      updatedSubmission = result;
+    } else {
+      // Update legacy submission (default for backwards compatibility)
+      const [result] = await sql`
+        UPDATE submissions SET
+          status = ${data.status},
+          updated_at = NOW()
+        WHERE id = ${submissionId}
+        RETURNING *
+      `
+      updatedSubmission = result;
+    }
 
     if (!updatedSubmission) {
       return NextResponse.json({ error: 'Submission not found' }, { status: 404 })
@@ -48,10 +65,24 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid submission ID' }, { status: 400 })
     }
 
-    // Delete the submission
-    const [deletedSubmission] = await sql`
-      DELETE FROM submissions WHERE id = ${submissionId} RETURNING *
-    `
+    const url = new URL(request.url)
+    const submissionType = url.searchParams.get('type')
+
+    let deletedSubmission;
+
+    if (submissionType === 'workflow') {
+      // Delete workflow submission
+      const [result] = await sql`
+        DELETE FROM workflow_submissions WHERE id = ${submissionId} RETURNING *
+      `
+      deletedSubmission = result;
+    } else {
+      // Delete legacy submission (default for backwards compatibility)
+      const [result] = await sql`
+        DELETE FROM submissions WHERE id = ${submissionId} RETURNING *
+      `
+      deletedSubmission = result;
+    }
 
     if (!deletedSubmission) {
       return NextResponse.json({ error: 'Submission not found' }, { status: 404 })
