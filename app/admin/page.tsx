@@ -17,9 +17,10 @@ export default function AdminDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [stats, setStats] = useState({
-    totalProducts: 0,
-    legitProducts: 0,
-    overhypedProducts: 0,
+    totalWorkflows: 0,
+    publishedWorkflows: 0,
+    totalViews: 0,
+    totalSaves: 0,
     pendingSubmissions: 0
   })
 
@@ -37,19 +38,20 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const [productsRes, submissionsRes] = await Promise.all([
-        fetch('/api/admin/stats/products'),
+      const [workflowsRes, submissionsRes] = await Promise.all([
+        fetch('/api/admin/stats/workflows'),
         fetch('/api/admin/stats/submissions')
       ])
 
-      if (productsRes.ok && submissionsRes.ok) {
-        const productsData = await productsRes.json()
+      if (workflowsRes.ok && submissionsRes.ok) {
+        const workflowsData = await workflowsRes.json()
         const submissionsData = await submissionsRes.json()
         
         setStats({
-          totalProducts: productsData.total,
-          legitProducts: productsData.legit,
-          overhypedProducts: productsData.overhyped,
+          totalWorkflows: workflowsData.total,
+          publishedWorkflows: workflowsData.published,
+          totalViews: workflowsData.totalViews,
+          totalSaves: workflowsData.totalSaves,
           pendingSubmissions: submissionsData.pending
         })
       }
@@ -108,8 +110,8 @@ export default function AdminDashboard() {
             <div className="flex items-center">
               <Package className="w-8 h-8 text-blue-500" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Products</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.totalProducts}</p>
+                <p className="text-sm font-medium text-gray-600">Total Workflows</p>
+                <p className="text-2xl font-semibold text-gray-900">{stats.totalWorkflows}</p>
               </div>
             </div>
           </div>
@@ -117,23 +119,23 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">L</span>
+                <span className="text-white font-bold text-sm">P</span>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">LEGIT Products</p>
-                <p className="text-2xl font-semibold text-green-600">{stats.legitProducts}</p>
+                <p className="text-sm font-medium text-gray-600">Published</p>
+                <p className="text-2xl font-semibold text-green-600">{stats.publishedWorkflows}</p>
               </div>
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">O</span>
+              <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">👁</span>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">OVERHYPED Products</p>
-                <p className="text-2xl font-semibold text-red-600">{stats.overhypedProducts}</p>
+                <p className="text-sm font-medium text-gray-600">Total Views</p>
+                <p className="text-2xl font-semibold text-purple-600">{stats.totalViews}</p>
               </div>
             </div>
           </div>
@@ -151,17 +153,17 @@ export default function AdminDashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Link href="/admin/products">
+          <Link href="/admin/workflows">
             <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
               <div className="flex items-center mb-4">
                 <Package className="w-6 h-6 text-blue-500" />
-                <h3 className="text-lg font-semibold text-gray-900 ml-3">Manage Products</h3>
+                <h3 className="text-lg font-semibold text-gray-900 ml-3">Manage Workflows</h3>
               </div>
               <p className="text-gray-600 mb-4">
-                Add, edit, or delete AI tool reviews and manage product content
+                Add, edit, or delete workflow content and manage workflow library
               </p>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-blue-600 font-medium">Manage Products →</span>
+                <span className="text-sm text-blue-600 font-medium">Manage Workflows →</span>
                 <Plus className="w-4 h-4 text-blue-500" />
               </div>
             </div>
@@ -174,7 +176,7 @@ export default function AdminDashboard() {
                 <h3 className="text-lg font-semibold text-gray-900 ml-3">Review Submissions</h3>
               </div>
               <p className="text-gray-600 mb-4">
-                Review user submissions and decide which tools to review next
+                Review community workflow submissions and decide which to feature
               </p>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-orange-600 font-medium">Review Submissions →</span>
