@@ -1,5 +1,5 @@
 {
-  "name": "ai-hype-or-not",
+  "name": "llm-workflows",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "db:migrate": "source .env.local && psql $DATABASE_URL -f db/schema.sql && psql $DATABASE_URL -f db/seed-data.sql",
+    "db:migrate:workflows": "source .env.local && psql $DATABASE_URL -f db/workflow-schema.sql && psql $DATABASE_URL -f db/workflow-seed-data.sql",
     "db:connect": "source .env.local && psql $DATABASE_URL"
   },
   "dependencies": {

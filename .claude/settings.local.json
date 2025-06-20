@@ -4,7 +4,9 @@
       "Bash(find:*)",
       "Bash(ls:*)",
       "Bash(bun run lint:*)",
-      "Bash(bun run:*)"
+      "Bash(bun run:*)",
+      "Bash(git push:*)",
+      "WebFetch(domain:harper.blog)"
     ],
     "deny": []
   }
