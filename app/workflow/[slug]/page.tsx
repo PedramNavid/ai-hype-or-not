@@ -1,7 +1,7 @@
 import { Header } from "@/components/header"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Clock, Eye, Bookmark, User, Copy, Check, ChevronRight, BookOpen } from "lucide-react"
+import { Clock, Eye, Bookmark, User, Copy, Check, ChevronRight, BookOpen } from "lucide-react"
 import { sql } from "@/lib/db"
 
 interface Workflow {
@@ -178,8 +178,9 @@ function WorkflowContent({ content }: { content: string }) {
   return <div className="prose prose-gray max-w-none">{renderContent(content)}</div>
 }
 
-export default async function WorkflowPage({ params }: { params: { slug: string } }) {
-  const workflow = await getWorkflow(params.slug)
+export default async function WorkflowPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const workflow = await getWorkflow(slug)
 
   if (!workflow) {
     notFound()

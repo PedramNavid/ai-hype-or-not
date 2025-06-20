@@ -103,7 +103,7 @@ export function WorkflowSubmitForm() {
         </div>
         <h3 className="text-xl font-semibold text-green-900 mb-2">Workflow Submitted!</h3>
         <p className="text-green-800 mb-6">
-          Thanks for sharing your workflow with the community. We'll review it and get back to you soon.
+          Thanks for sharing your workflow with the community. We&apos;ll review it and get back to you soon.
         </p>
         <button
           onClick={() => {

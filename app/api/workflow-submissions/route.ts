@@ -9,8 +9,6 @@ export async function POST(request: Request) {
       title,
       description,
       workflowType: workflow_type,
-      difficulty,
-      timeEstimate: time_estimate,
       content,
       tools_used,
       submitterName: submitter_name,
