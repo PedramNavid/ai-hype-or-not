@@ -300,36 +300,42 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
           </div>
         </div>
 
-        {/* Tools Required */}
-        <section className="mb-8 p-6 bg-gray-50 rounded-xl">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Tools & Prerequisites</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Required Tools</h3>
-              <div className="space-y-2">
-                {workflow.tools.filter(t => t.is_required).map((tool) => (
-                  <div key={tool.tool_name} className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">{tool.tool_name}</span>
-                    <span className="text-xs text-gray-500">({tool.tool_category})</span>
+        {/* Tools Required - Only show if there are tools */}
+        {workflow.tools.length > 0 && (
+          <section className="mb-8 p-6 bg-gray-50 rounded-xl">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Tools & Prerequisites</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {workflow.tools.filter(t => t.is_required).length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Required Tools</h3>
+                  <div className="space-y-2">
+                    {workflow.tools.filter(t => t.is_required).map((tool) => (
+                      <div key={tool.tool_name} className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-green-600" />
+                        <span className="text-sm">{tool.tool_name}</span>
+                        <span className="text-xs text-gray-500">({tool.tool_category})</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Optional Tools</h3>
-              <div className="space-y-2">
-                {workflow.tools.filter(t => !t.is_required).map((tool) => (
-                  <div key={tool.tool_name} className="flex items-center gap-2">
-                    <span className="w-4 h-4 rounded-full bg-gray-300"></span>
-                    <span className="text-sm">{tool.tool_name}</span>
-                    <span className="text-xs text-gray-500">({tool.tool_category})</span>
+                </div>
+              )}
+              {workflow.tools.filter(t => !t.is_required).length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Optional Tools</h3>
+                  <div className="space-y-2">
+                    {workflow.tools.filter(t => !t.is_required).map((tool) => (
+                      <div key={tool.tool_name} className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded-full bg-gray-300"></span>
+                        <span className="text-sm">{tool.tool_name}</span>
+                        <span className="text-xs text-gray-500">({tool.tool_category})</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Workflow Steps */}
         {workflow.steps.length > 0 && (
@@ -355,7 +361,7 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
                               Copy
                             </button>
                           </div>
-                          <pre className="bg-gray-100 rounded-lg p-4 text-sm overflow-x-auto">
+                          <pre className="bg-gray-100 rounded-lg p-4 text-sm overflow-x-auto whitespace-pre-wrap break-words">
                             <code>{step.prompt_template}</code>
                           </pre>
                         </div>
@@ -379,7 +385,35 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
                       {step.tips && (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                           <h4 className="text-sm font-medium text-blue-900 mb-1">Pro Tip</h4>
-                          <p className="text-sm text-blue-800">{step.tips}</p>
+                          <div className="text-sm text-blue-800">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={{
+                                p: ({ children }) => (
+                                  <p className="mb-2 last:mb-0">{children}</p>
+                                ),
+                                ul: ({ children }) => (
+                                  <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>
+                                ),
+                                ol: ({ children }) => (
+                                  <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>
+                                ),
+                                li: ({ children }) => (
+                                  <li className="text-blue-800">{children}</li>
+                                ),
+                                strong: ({ children }) => (
+                                  <strong className="font-semibold text-blue-900">{children}</strong>
+                                ),
+                                code: ({ children }) => (
+                                  <code className="bg-blue-100 text-blue-900 px-1 py-0.5 rounded text-xs font-mono">
+                                    {children}
+                                  </code>
+                                ),
+                              }}
+                            >
+                              {step.tips}
+                            </ReactMarkdown>
+                          </div>
                         </div>
                       )}
                     </div>

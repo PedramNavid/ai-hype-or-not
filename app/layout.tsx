@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI HYPE OR NOT!!!!",
-  description: "Cutting through the AI noise with honest reviews and ratings. Every tool personally tested and rated on the hype scale.",
+  title: 'AI and LLM Workflows',
+  description: "Community-driven collection of AI and LLM workflows for impatient developers.",
 };
 
 export default function RootLayout({

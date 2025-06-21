@@ -44,11 +44,17 @@ psql $DATABASE_URL
 
 ### Key Directories
 - `app/`: Next.js App Router pages and layouts
-  - `app/product/[slug]/`: Dynamic product detail pages
+  - `app/workflow/[slug]/`: Dynamic workflow detail pages
+  - `app/authors/[slug]/`: Public author profile pages
   - `app/submit/`: Tool submission form page
   - `app/about/`: About page explaining review process
   - `app/admin/`: Admin panel for content management (protected routes)
+    - `app/admin/workflows/`: Workflow CRUD operations
+    - `app/admin/authors/`: Author management
+    - `app/admin/submissions/`: Review user submissions
   - `app/api/auth/`: NextAuth.js authentication endpoints
+  - `app/api/admin/`: Admin-only API routes
+  - `app/api/authors/`: Public author data endpoints
 - `components/`: React components
   - `components/ui/`: Base UI components (shadcn/ui pattern)
 - `lib/`: Utility functions (mainly `cn` for classnames)
@@ -62,24 +68,26 @@ psql $DATABASE_URL
 ### Current Implementation Notes
 - **Data Storage**: PostgreSQL database via Neon (@neondatabase/serverless)
 - **Database Access**: Connect via `psql` using environment variables from `.env.local`
-- **Form Submissions**: Submit form is frontend-only (no backend API)
-- **Routing**: File-based with dynamic routes for products
+- **Content Model**: Workflows with author attribution, tools, and step-by-step guides
+- **Author Management**: Full CRUD operations for author profiles with social links
+- **Routing**: File-based with dynamic routes for workflows and authors
 - **Theming**: CSS custom properties defined for light/dark theme support
 - **No Testing**: No test framework currently configured
 
 ## Important Files
-- `app/page.tsx`: Homepage with product listing grid
-- `components/product-card.tsx`: Reusable product card component
-- `app/product/[slug]/page.tsx`: Product detail page template
-- `components/submit-form.tsx`: Tool submission form component
+- `app/page.tsx`: Homepage with workflow listing
+- `app/workflow/[slug]/page.tsx`: Workflow detail pages with author attribution
+- `app/authors/[slug]/page.tsx`: Public author profile pages
+- `app/admin/workflows/`: Workflow management (create, edit, assign authors)
+- `app/admin/authors/`: Author management (CRUD operations)
+- `app/api/admin/workflows/`: Workflow API routes
+- `app/api/admin/authors/`: Author management API routes
+- `app/api/authors/[slug]/route.ts`: Public author profile API
 - `lib/utils.ts`: Contains `cn()` utility for classname merging
 - `lib/db.ts`: Database connection and query functions
-- `db/schema.sql`: Database schema definition
-- `db/seed-data.sql`: Initial data for seeding
-- `app/api/products/`: API routes for product data
-- `app/api/submissions/`: API route for form submissions
-- `app/admin/`: Admin panel for content management
-- `app/api/admin/`: Admin-only API routes for dashboard stats
+- `db/workflow-schema.sql`: Main database schema with users/workflows
+- `db/workflow-seed-data.sql`: Initial workflow and author data
+- `db/add-author-fields.sql`: Author profile enhancements (slug, LinkedIn)
 
 ## Admin Panel
 
@@ -91,9 +99,10 @@ The site includes a protected admin panel for content management at `/admin`.
 - No password authentication - OAuth only
 
 ### Features
-- Dashboard with product and submission statistics
-- Product management (planned)
-- Submission review (planned)
+- Dashboard with workflow and submission statistics
+- **Workflow Management**: Full CRUD operations with author assignment
+- **Author Management**: Create/edit author profiles with social media links
+- **Submission Review**: Review community-submitted workflows
 - Protected routes with middleware
 
 ### Required Environment Variables
@@ -121,3 +130,44 @@ ADMIN_EMAILS=your-email@example.com,another-admin@example.com
 2. Create Google OAuth credentials at https://console.cloud.google.com/
 3. Add your email address to `ADMIN_EMAILS` environment variable
 4. Access admin panel at `/admin` after authentication
+
+## Development Best Practices
+
+### Database Schema Evolution
+- **Schema Updates**: Use separate migration files (e.g., `db/add-author-fields.sql`) for incremental changes
+- **Field Additions**: When adding new fields to existing tables, use `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` for safety
+- **Unique Constraints**: Always add unique indexes for slug fields to ensure URL uniqueness
+- **Foreign Key Validation**: Validate related entity existence before inserting/updating (e.g., author_id validation)
+
+### API Route Patterns
+- **CRUD Consistency**: Follow REST conventions - `GET/POST` for collections, `GET/PUT/DELETE` for individual resources
+- **Admin Authorization**: Always check admin permissions using the `isAdmin()` helper function
+- **Error Handling**: Return appropriate HTTP status codes (401, 404, 500) with descriptive error messages
+- **Data Validation**: Validate required fields and foreign key relationships before database operations
+
+### Form State Management
+- **Author Selection**: Use dropdown selects for entity relationships, pre-populate with current values on edit forms
+- **Real-time Updates**: Auto-generate slugs from names, but allow manual editing for customization
+- **Concurrent Data**: Fetch related data (authors list) alongside main entity data for form dropdowns
+
+### Next.js App Router Patterns
+- **Dynamic Routes**: Use `[slug]` patterns for SEO-friendly URLs (`/authors/john-doe`, `/workflow/react-setup`)
+- **Server Components**: Prefer server components for data fetching, use client components only when needed for interactivity
+- **Params Handling**: In Next.js 15, params are Promise objects - always await them: `const { slug } = await params`
+- **Public vs Admin**: Separate public (`/api/authors/`) and admin (`/api/admin/authors/`) API endpoints
+
+### UI/UX Considerations
+- **Clickable Author Links**: Make author information clickable throughout the app (workflow pages → author profiles)
+- **Social Media Integration**: Include all major platforms (GitHub, Twitter, LinkedIn, Website) with proper icons
+- **Navigation Context**: Add breadcrumbs and back links to maintain user orientation
+- **Responsive Design**: Ensure forms and lists work well on both desktop and mobile
+
+### TypeScript Integration
+- **Interface Consistency**: Define interfaces for all data structures and reuse across components
+- **Promise Params**: Handle Next.js 15's Promise-based params correctly in page components
+- **API Response Types**: Type API responses to catch errors during development
+
+### Performance Optimizations
+- **Database Queries**: Use joins to fetch related data in single queries (workflow + author info)
+- **Index Usage**: Create indexes on frequently queried fields (slugs, foreign keys)
+- **Image Optimization**: Use Next.js Image component for avatars and provide fallbacks for missing images
