@@ -93,6 +93,7 @@ export async function PUT(
       slug,
       description,
       content,
+      author_id,
       workflow_type,
       difficulty_level,
       time_estimate,
@@ -102,6 +103,16 @@ export async function PUT(
       steps = []
     } = data
 
+    // Validate author exists if provided
+    if (author_id) {
+      const author = await sql`
+        SELECT id FROM users WHERE id = ${author_id}
+      `
+      if (author.length === 0) {
+        return NextResponse.json({ error: 'Author not found' }, { status: 404 })
+      }
+    }
+
     // Update workflow
     const workflow = await sql`
       UPDATE workflows SET
@@ -109,6 +120,7 @@ export async function PUT(
         slug = ${slug},
         description = ${description},
         content = ${content},
+        author_id = ${author_id},
         workflow_type = ${workflow_type},
         difficulty_level = ${difficulty_level},
         time_estimate = ${time_estimate},

@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
       slug,
       description,
       content,
+      author_id,
       workflow_type,
       difficulty_level,
       time_estimate,
@@ -78,16 +79,16 @@ export async function POST(request: NextRequest) {
       steps = []
     } = data
 
-    // Get the admin user ID
-    const adminUser = await sql`
-      SELECT id FROM users WHERE email = ${session.user?.email}
+    // Validate author exists
+    const author = await sql`
+      SELECT id FROM users WHERE id = ${author_id}
     `
 
-    if (adminUser.length === 0) {
-      return NextResponse.json({ error: 'Admin user not found' }, { status: 404 })
+    if (author.length === 0) {
+      return NextResponse.json({ error: 'Author not found' }, { status: 404 })
     }
 
-    const authorId = adminUser[0].id
+    const authorId = author_id
 
     // Insert workflow
     const workflow = await sql`

@@ -14,26 +14,51 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user }) {
+    async signIn({ user, account, profile }) {
       // Only allow specific admin emails to sign in
       const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || []
-      
+
       if (user.email && adminEmails.includes(user.email.toLowerCase())) {
+        // Check if user exists in database, if not create them
+        try {
+          const { sql } = await import('@/lib/db')
+
+          const existingUser = await sql`
+            SELECT id FROM users WHERE email = ${user.email}
+          `
+
+          if (existingUser.length === 0) {
+            // Create new user record
+            await sql`
+              INSERT INTO users (email, name, avatar_url, github_username)
+              VALUES (
+                ${user.email}, 
+                ${user.name || user.email}, 
+                ${user.image || null},
+                ${account?.provider === 'github' ? (profile as any)?.login : null}
+              )
+            `
+          }
+        } catch (error) {
+          console.error('Error creating user record:', error)
+          // Still allow sign in even if user creation fails
+        }
+
         return true
       }
-      
+
       return false
     },
     async jwt({ token, user }) {
       // Add admin role to JWT token
       if (user) {
         const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || []
-        
+
         if (user.email && adminEmails.includes(user.email.toLowerCase())) {
           token.role = 'admin'
         }
       }
-      
+
       return token
     },
     async session({ session, token }) {
@@ -41,7 +66,7 @@ const handler = NextAuth({
       if (token.role) {
         session.user.role = token.role as string
       }
-      
+
       return session
     },
   },

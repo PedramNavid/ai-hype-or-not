@@ -22,6 +22,12 @@ interface Step {
   tips?: string
 }
 
+interface Author {
+  id: number
+  name: string
+  email: string
+}
+
 export default function EditWorkflowPage({ params }: { params: Promise<{ id: string }> }) {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -37,10 +43,12 @@ export default function EditWorkflowPage({ params }: { params: Promise<{ id: str
     difficulty_level: 'intermediate',
     time_estimate: '',
     status: 'draft',
-    is_featured: false
+    is_featured: false,
+    author_id: ''
   })
   const [tools, setTools] = useState<Tool[]>([])
   const [steps, setSteps] = useState<Step[]>([])
+  const [authors, setAuthors] = useState<Author[]>([])
 
   useEffect(() => {
     async function getParams() {
@@ -60,8 +68,21 @@ export default function EditWorkflowPage({ params }: { params: Promise<{ id: str
 
     if (workflowId) {
       fetchWorkflow()
+      fetchAuthors()
     }
   }, [session, status, router, workflowId])
+
+  const fetchAuthors = async () => {
+    try {
+      const response = await fetch('/api/admin/authors')
+      if (response.ok) {
+        const data = await response.json()
+        setAuthors(data)
+      }
+    } catch (error) {
+      console.error('Error fetching authors:', error)
+    }
+  }
 
   const fetchWorkflow = async () => {
     try {
@@ -77,7 +98,8 @@ export default function EditWorkflowPage({ params }: { params: Promise<{ id: str
           difficulty_level: workflow.difficulty_level,
           time_estimate: workflow.time_estimate || '',
           status: workflow.status,
-          is_featured: workflow.is_featured
+          is_featured: workflow.is_featured,
+          author_id: workflow.author_id?.toString() || ''
         })
         setTools(workflow.tools || [])
         setSteps(workflow.steps || [])
@@ -106,6 +128,7 @@ export default function EditWorkflowPage({ params }: { params: Promise<{ id: str
         },
         body: JSON.stringify({
           ...formData,
+          author_id: parseInt(formData.author_id),
           tools,
           steps
         })
@@ -226,6 +249,24 @@ export default function EditWorkflowPage({ params }: { params: Promise<{ id: str
                   onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Author *
+                </label>
+                <select
+                  required
+                  value={formData.author_id}
+                  onChange={(e) => setFormData(prev => ({ ...prev, author_id: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select an author</option>
+                  {authors.map((author) => (
+                    <option key={author.id} value={author.id}>
+                      {author.name} ({author.email})
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

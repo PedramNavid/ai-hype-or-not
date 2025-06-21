@@ -3,6 +3,10 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Clock, Eye, Bookmark, User, Copy, Check, ChevronRight, BookOpen } from "lucide-react"
 import { sql } from "@/lib/db"
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface Workflow {
   id: string
@@ -13,6 +17,7 @@ interface Workflow {
   author: {
     id: string
     name: string
+    slug: string
     bio?: string
     avatar_url?: string
     github_username?: string
@@ -60,6 +65,7 @@ async function getWorkflow(slug: string): Promise<Workflow | null> {
         json_build_object(
           'id', u.id,
           'name', u.name,
+          'slug', u.slug,
           'bio', u.bio,
           'avatar_url', u.avatar_url,
           'github_username', u.github_username,
@@ -115,67 +121,86 @@ async function getWorkflow(slug: string): Promise<Workflow | null> {
   }
 }
 
-// Markdown-style component for rendering workflow content
+// Markdown component for rendering workflow content
 function WorkflowContent({ content }: { content: string }) {
-  // Simple markdown rendering - in production, use a proper markdown library
-  const renderContent = (text: string) => {
-    const lines = text.split('\n')
-    const elements = []
-    let inCodeBlock = false
-    let codeBlockContent = []
-    let codeBlockLang = ''
+  return (
+    <div className="prose prose-gray max-w-none">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          code({ node, className, children, ...props }) {
+            const match = /language-(\w+)/.exec(className || '')
+            const language = match ? match[1] : 'text'
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
+            // Check if this is a fenced code block (has className starting with 'language-' or contains newlines)
+            const isCodeBlock = className?.startsWith('language-') || String(children).includes('\n')
 
-      // Code blocks
-      if (line.startsWith('```')) {
-        if (!inCodeBlock) {
-          inCodeBlock = true
-          codeBlockLang = line.slice(3).trim()
-          codeBlockContent = []
-        } else {
-          inCodeBlock = false
-          elements.push(
-            <pre key={i} className="bg-gray-100 rounded-lg p-4 overflow-x-auto my-4">
-              <code className={`language-${codeBlockLang}`}>
-                {codeBlockContent.join('\n')}
+            return isCodeBlock ? (
+              <SyntaxHighlighter
+                style={tomorrow}
+                language={language}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.5rem',
+                  padding: '1rem',
+                } as any}
+              >
+                {String(children).replace(/\n$/, '')}
+              </SyntaxHighlighter>
+            ) : (
+              <code className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">
+                {children}
               </code>
-            </pre>
-          )
-        }
-        continue
-      }
-
-      if (inCodeBlock) {
-        codeBlockContent.push(line)
-        continue
-      }
-
-      // Headers
-      if (line.startsWith('# ')) {
-        elements.push(<h1 key={i} className="text-3xl font-bold mt-8 mb-4">{line.slice(2)}</h1>)
-      } else if (line.startsWith('## ')) {
-        elements.push(<h2 key={i} className="text-2xl font-bold mt-6 mb-3">{line.slice(3)}</h2>)
-      } else if (line.startsWith('### ')) {
-        elements.push(<h3 key={i} className="text-xl font-bold mt-4 mb-2">{line.slice(4)}</h3>)
-      } 
-      // Lists
-      else if (line.startsWith('- ')) {
-        elements.push(<li key={i} className="ml-6 mb-2 list-disc">{line.slice(2)}</li>)
-      } else if (line.startsWith('1. ')) {
-        elements.push(<li key={i} className="ml-6 mb-2 list-decimal">{line.slice(3)}</li>)
-      }
-      // Paragraphs
-      else if (line.trim()) {
-        elements.push(<p key={i} className="mb-4 leading-relaxed">{line}</p>)
-      }
-    }
-
-    return elements
-  }
-
-  return <div className="prose prose-gray max-w-none">{renderContent(content)}</div>
+            )
+          },
+          h1: ({ children }) => (
+            <h1 className="text-3xl font-bold mt-8 mb-4 text-gray-900">{children}</h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="text-2xl font-bold mt-6 mb-3 text-gray-900">{children}</h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="text-xl font-bold mt-4 mb-2 text-gray-900">{children}</h3>
+          ),
+          p: ({ children }) => (
+            <p className="mb-4 leading-relaxed text-gray-700">{children}</p>
+          ),
+          ul: ({ children }) => (
+            <ul className="list-disc list-inside mb-4 space-y-2">{children}</ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal list-inside mb-4 space-y-2">{children}</ol>
+          ),
+          li: ({ children }) => (
+            <li className="text-gray-700">{children}</li>
+          ),
+          strong: ({ children }) => (
+            <strong className="font-bold text-gray-900">{children}</strong>
+          ),
+          em: ({ children }) => (
+            <em className="italic text-gray-800">{children}</em>
+          ),
+          a: ({ href, children }) => (
+            <a
+              href={href}
+              className="text-blue-600 hover:text-blue-800 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {children}
+            </a>
+          ),
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-4 border-gray-300 pl-4 my-4 italic text-gray-700">
+              {children}
+            </blockquote>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  )
 }
 
 export default async function WorkflowPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -217,16 +242,14 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <span
-              className={`text-sm font-semibold px-3 py-1 rounded-full ${
-                typeColors[workflow.workflow_type as keyof typeof typeColors] || "bg-gray-100 text-gray-700"
-              }`}
+              className={`text-sm font-semibold px-3 py-1 rounded-full ${typeColors[workflow.workflow_type as keyof typeof typeColors] || "bg-gray-100 text-gray-700"
+                }`}
             >
               {workflow.workflow_type}
             </span>
             <span
-              className={`text-sm font-semibold px-3 py-1 rounded-full ${
-                difficultyColors[workflow.difficulty_level as keyof typeof difficultyColors]
-              }`}
+              className={`text-sm font-semibold px-3 py-1 rounded-full ${difficultyColors[workflow.difficulty_level as keyof typeof difficultyColors]
+                }`}
             >
               {workflow.difficulty_level}
             </span>
@@ -235,14 +258,14 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
               {workflow.time_estimate}
             </span>
           </div>
-          
+
           <h1 className="text-4xl font-bold text-gray-900 mb-4">{workflow.title}</h1>
           <p className="text-xl text-gray-600 leading-relaxed">{workflow.description}</p>
         </div>
 
         {/* Author and Stats */}
         <div className="flex items-center justify-between py-6 border-y border-gray-200 mb-8">
-          <div className="flex items-center gap-4">
+          <Link href={`/authors/${workflow.author.slug}`} className="flex items-center gap-4 hover:opacity-80 transition-opacity">
             {workflow.author.avatar_url ? (
               <img
                 src={workflow.author.avatar_url}
@@ -260,7 +283,7 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
                 <div className="text-sm text-gray-600">{workflow.author.bio}</div>
               )}
             </div>
-          </div>
+          </Link>
           <div className="flex items-center gap-6 text-sm text-gray-500">
             <span className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
@@ -322,7 +345,7 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
                     <div className="flex-grow">
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">{step.title}</h3>
                       <p className="text-gray-600 mb-4">{step.description}</p>
-                      
+
                       {step.prompt_template && (
                         <div className="mb-4">
                           <div className="flex items-center justify-between mb-2">
@@ -337,7 +360,7 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
                           </pre>
                         </div>
                       )}
-                      
+
                       {step.code_snippet && (
                         <div className="mb-4">
                           <div className="flex items-center justify-between mb-2">
@@ -352,7 +375,7 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
                           </pre>
                         </div>
                       )}
-                      
+
                       {step.tips && (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                           <h4 className="text-sm font-medium text-blue-900 mb-1">Pro Tip</h4>

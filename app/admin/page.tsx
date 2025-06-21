@@ -9,7 +9,8 @@ import {
   MessageSquare, 
   BarChart3, 
   LogOut, 
-  Plus
+  Plus,
+  Users
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -165,6 +166,22 @@ export default function AdminDashboard() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-blue-600 font-medium">Manage Workflows →</span>
                 <Plus className="w-4 h-4 text-blue-500" />
+              </div>
+            </div>
+          </Link>
+
+          <Link href="/admin/authors">
+            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+              <div className="flex items-center mb-4">
+                <Users className="w-6 h-6 text-purple-500" />
+                <h3 className="text-lg font-semibold text-gray-900 ml-3">Manage Authors</h3>
+              </div>
+              <p className="text-gray-600 mb-4">
+                Create and manage author profiles, assign workflows to different authors
+              </p>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-purple-600 font-medium">Manage Authors →</span>
+                <Plus className="w-4 h-4 text-purple-500" />
               </div>
             </div>
           </Link>
