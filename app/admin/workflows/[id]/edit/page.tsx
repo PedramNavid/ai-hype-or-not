@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import { ArrowLeft, Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -70,9 +70,9 @@ export default function EditWorkflowPage({ params }: { params: Promise<{ id: str
       fetchWorkflow()
       fetchAuthors()
     }
-  }, [session, status, router, workflowId])
+  }, [session, status, router, workflowId, fetchWorkflow, fetchAuthors])
 
-  const fetchAuthors = async () => {
+  const fetchAuthors = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/authors')
       if (response.ok) {
@@ -82,9 +82,9 @@ export default function EditWorkflowPage({ params }: { params: Promise<{ id: str
     } catch (error) {
       console.error('Error fetching authors:', error)
     }
-  }
+  }, [])
 
-  const fetchWorkflow = async () => {
+  const fetchWorkflow = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/workflows/${workflowId}`)
       if (response.ok) {
@@ -114,7 +114,7 @@ export default function EditWorkflowPage({ params }: { params: Promise<{ id: str
     } finally {
       setInitialLoading(false)
     }
-  }
+  }, [workflowId, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

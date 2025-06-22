@@ -128,7 +128,7 @@ function WorkflowContent({ content }: { content: string }) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({ node, className, children, ...props }) {
+          code({ className, children }) {
             const match = /language-(\w+)/.exec(className || '')
             const language = match ? match[1] : 'text'
 
@@ -143,7 +143,7 @@ function WorkflowContent({ content }: { content: string }) {
                   margin: 0,
                   borderRadius: '0.5rem',
                   padding: '1rem',
-                } as any}
+                } as React.CSSProperties}
               >
                 {String(children).replace(/\n$/, '')}
               </SyntaxHighlighter>

@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -37,9 +37,9 @@ export default function EditAuthorPage({ params }: PageProps) {
     }
 
     fetchAuthor()
-  }, [session, status, router])
+  }, [session, status, router, fetchAuthor])
 
-  const fetchAuthor = async () => {
+  const fetchAuthor = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/authors/${params.id}`)
       if (response.ok) {
@@ -65,7 +65,7 @@ export default function EditAuthorPage({ params }: PageProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

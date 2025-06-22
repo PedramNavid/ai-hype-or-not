@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Calendar, Clock, Users, ArrowLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Calendar, Clock, ArrowLeft } from 'lucide-react'
 
 interface PageProps {
   params: Promise<{ slug: string }>

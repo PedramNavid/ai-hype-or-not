@@ -35,7 +35,7 @@ const handler = NextAuth({
                 ${user.email}, 
                 ${user.name || user.email}, 
                 ${user.image || null},
-                ${account?.provider === 'github' ? (profile as any)?.login : null}
+                ${account?.provider === 'github' ? profile?.login : null}
               )
             `
           }

@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import { ArrowLeft, Plus, Trash2, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -59,9 +59,9 @@ export default function NewWorkflowPage() {
     }
     
     fetchAuthors()
-  }, [session, status, router])
+  }, [session, status, router, fetchAuthors])
 
-  const fetchAuthors = async () => {
+  const fetchAuthors = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/authors')
       if (response.ok) {
@@ -75,7 +75,7 @@ export default function NewWorkflowPage() {
     } catch (error) {
       console.error('Error fetching authors:', error)
     }
-  }
+  }, [formData.author_id])
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -162,7 +162,16 @@ export default function NewWorkflowPage() {
     setSteps(updated)
   }
 
-  const handleParsedData = (data: any) => {
+  const handleParsedData = (data: {
+    title: string
+    description: string
+    content: string
+    workflowType: string
+    difficulty: string
+    timeEstimate: string
+    tools: Array<{ tool_name: string; tool_category: string; is_required: boolean }>
+    steps: Array<{ step_number: number; title: string; description: string; code_snippet?: string; prompt_template?: string; tips?: string }>
+  }) => {
     // Populate form data
     setFormData({
       ...formData,
