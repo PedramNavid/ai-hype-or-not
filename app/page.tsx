@@ -21,13 +21,14 @@ interface Workflow {
   created_at: string
 }
 
-async function getWorkflows(): Promise<Workflow[]> {
+async function getWorkflows(): Promise<{ featured: Workflow[], recent: Workflow[] }> {
   // For server-side rendering, use the internal API directly
   if (typeof window === 'undefined') {
     const { sql } = await import('@/lib/db')
     
     try {
-      const workflows = await sql`
+      // Get featured workflows
+      const featuredWorkflows = await sql`
         SELECT 
           w.id,
           w.title,
@@ -51,16 +52,50 @@ async function getWorkflows(): Promise<Workflow[]> {
         JOIN users u ON w.author_id = u.id
         LEFT JOIN workflow_tools wt ON w.id = wt.workflow_id
         LEFT JOIN workflow_saves ws ON w.id = ws.workflow_id
-        WHERE w.status = 'published'
+        WHERE w.status = 'published' AND w.is_featured = true
         GROUP BY w.id, u.id
-        ORDER BY w.is_featured DESC, w.created_at DESC
-        LIMIT 9
+        ORDER BY w.created_at DESC
+        LIMIT 3
       `
       
-      return workflows as Workflow[]
+      // Get recent non-featured workflows
+      const recentWorkflows = await sql`
+        SELECT 
+          w.id,
+          w.title,
+          w.slug,
+          w.description,
+          w.workflow_type,
+          w.difficulty_level,
+          w.time_estimate,
+          w.view_count,
+          w.created_at,
+          json_build_object(
+            'name', u.name,
+            'avatar_url', u.avatar_url
+          ) as author,
+          COALESCE(
+            array_agg(DISTINCT wt.tool_name) FILTER (WHERE wt.tool_name IS NOT NULL),
+            ARRAY[]::text[]
+          ) as tools,
+          COUNT(DISTINCT ws.user_id) as save_count
+        FROM workflows w
+        JOIN users u ON w.author_id = u.id
+        LEFT JOIN workflow_tools wt ON w.id = wt.workflow_id
+        LEFT JOIN workflow_saves ws ON w.id = ws.workflow_id
+        WHERE w.status = 'published' AND (w.is_featured = false OR w.is_featured IS NULL)
+        GROUP BY w.id, u.id
+        ORDER BY w.created_at DESC
+        LIMIT 6
+      `
+      
+      return {
+        featured: featuredWorkflows as Workflow[],
+        recent: recentWorkflows as Workflow[]
+      }
     } catch (error) {
       console.error('Database error:', error)
-      return []
+      return { featured: [], recent: [] }
     }
   }
   
@@ -74,13 +109,19 @@ async function getWorkflows(): Promise<Workflow[]> {
     throw new Error('Failed to fetch workflows')
   }
   
-  return res.json()
+  const workflows = await res.json()
+  
+  // Split into featured and recent on client side
+  const featured = workflows.filter((w: Workflow) => w.is_featured).slice(0, 3)
+  const recent = workflows.filter((w: Workflow) => !w.is_featured).slice(0, 6)
+  
+  return { featured, recent }
 }
 
 export default async function HomePage() {
-  const workflows = await getWorkflows()
-  const featuredWorkflows = workflows.slice(0, 3)
-  const recentWorkflows = workflows.slice(3)
+  const { featured, recent } = await getWorkflows()
+  const featuredWorkflows = featured
+  const recentWorkflows = recent
 
   return (
     <div className="min-h-screen bg-white">
@@ -123,7 +164,7 @@ export default async function HomePage() {
             <div className="flex justify-center mb-4">
               <BookOpen className="w-8 h-8 text-blue-600" />
             </div>
-            <div className="text-4xl font-bold text-gray-900 mb-2">{workflows.length}</div>
+            <div className="text-4xl font-bold text-gray-900 mb-2">{featuredWorkflows.length + recentWorkflows.length}+</div>
             <div className="text-gray-600 font-medium">Workflows Shared</div>
           </div>
           <div className="text-center p-8 border border-gray-200 rounded-2xl bg-gradient-to-br from-green-50 to-white">
