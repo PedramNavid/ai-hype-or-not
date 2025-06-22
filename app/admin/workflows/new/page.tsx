@@ -4,8 +4,9 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Plus, Trash2 } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { WebsiteParserForm } from "@/components/website-parser-form"
 
 interface Tool {
   tool_name: string
@@ -47,6 +48,7 @@ export default function NewWorkflowPage() {
   const [tools, setTools] = useState<Tool[]>([])
   const [steps, setSteps] = useState<Step[]>([])
   const [authors, setAuthors] = useState<Author[]>([])
+  const [showWebsiteParser, setShowWebsiteParser] = useState(false)
 
   useEffect(() => {
     if (status === "loading") return
@@ -160,6 +162,39 @@ export default function NewWorkflowPage() {
     setSteps(updated)
   }
 
+  const handleParsedData = (data: any) => {
+    // Populate form data
+    setFormData({
+      ...formData,
+      title: data.title,
+      description: data.description,
+      content: data.content,
+      workflow_type: data.workflowType,
+      difficulty_level: data.difficulty,
+      time_estimate: data.timeEstimate,
+      // Generate slug from title
+      slug: data.title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim()
+    })
+    
+    // Populate tools
+    if (data.tools && data.tools.length > 0) {
+      setTools(data.tools)
+    }
+    
+    // Populate steps
+    if (data.steps && data.steps.length > 0) {
+      setSteps(data.steps)
+    }
+    
+    // Hide the parser form
+    setShowWebsiteParser(false)
+  }
+
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -188,11 +223,28 @@ export default function NewWorkflowPage() {
               </Link>
               <h1 className="text-2xl font-bold text-gray-900">New Workflow</h1>
             </div>
+            <Button
+              onClick={() => setShowWebsiteParser(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+              size="sm"
+            >
+              <Globe className="w-4 h-4 mr-2" />
+              Parse Website
+            </Button>
           </div>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {showWebsiteParser && (
+          <div className="mb-8">
+            <WebsiteParserForm
+              onParsedData={handleParsedData}
+              onCancel={() => setShowWebsiteParser(false)}
+            />
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Info */}
           <div className="bg-white rounded-lg shadow p-6">

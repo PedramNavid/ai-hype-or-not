@@ -350,7 +350,45 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
                     </div>
                     <div className="flex-grow">
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">{step.title}</h3>
-                      <p className="text-gray-600 mb-4">{step.description}</p>
+                      <div className="text-gray-600 mb-4">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            p: ({ children }) => (
+                              <p className="mb-2 last:mb-0">{children}</p>
+                            ),
+                            ul: ({ children }) => (
+                              <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>
+                            ),
+                            ol: ({ children }) => (
+                              <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>
+                            ),
+                            li: ({ children }) => (
+                              <li className="text-gray-600">{children}</li>
+                            ),
+                            strong: ({ children }) => (
+                              <strong className="font-semibold text-gray-900">{children}</strong>
+                            ),
+                            code: ({ children }) => (
+                              <code className="bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-xs font-mono">
+                                {children}
+                              </code>
+                            ),
+                            a: ({ href, children }) => (
+                              <a
+                                href={href}
+                                className="text-blue-600 hover:text-blue-800 underline"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {children}
+                              </a>
+                            ),
+                          }}
+                        >
+                          {step.description}
+                        </ReactMarkdown>
+                      </div>
 
                       {step.prompt_template && (
                         <div className="mb-4">

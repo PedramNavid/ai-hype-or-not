@@ -4,9 +4,11 @@ import { sql } from '@/lib/db'
 // GET - Get author by slug with their published workflows
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const { slug } = await params
+
     // Get author details
     const author = await sql`
       SELECT 
@@ -21,7 +23,7 @@ export async function GET(
         avatar_url,
         created_at
       FROM users
-      WHERE slug = ${params.slug}
+      WHERE slug = ${slug}
       LIMIT 1
     `
 

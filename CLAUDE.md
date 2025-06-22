@@ -123,13 +123,30 @@ GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
 
 # Admin Access
 ADMIN_EMAILS=your-email@example.com,another-admin@example.com
+
+# AI Website Parsing (Optional)
+ANTHROPIC_API_KEY=your-anthropic-api-key-here
 ```
 
 ### Setup Instructions
 1. Create GitHub OAuth App at https://github.com/settings/applications/new
 2. Create Google OAuth credentials at https://console.cloud.google.com/
 3. Add your email address to `ADMIN_EMAILS` environment variable
-4. Access admin panel at `/admin` after authentication
+4. (Optional) Add `ANTHROPIC_API_KEY` for AI-powered website parsing feature
+5. Access admin panel at `/admin` after authentication
+
+### AI Website Parsing Feature
+The admin panel includes an AI-powered website parsing feature that can extract workflow information from existing web content:
+
+- **Purpose**: Automatically create workflow submissions by parsing development tutorials, documentation, and blog posts
+- **Access**: Click "Parse Website" button in the admin submissions page
+- **Requirements**: Requires `ANTHROPIC_API_KEY` environment variable
+- **Supported Content**: Works best with technical blog posts, GitHub READMEs, documentation, and tutorial content
+- **Process**: 
+  1. Enter URL of the website/tutorial
+  2. AI extracts workflow information (title, steps, tools, etc.)
+  3. Review and edit the parsed data
+  4. Create submission with pre-populated content
 
 ## Development Best Practices
 

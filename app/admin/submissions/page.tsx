@@ -120,6 +120,7 @@ export default function SubmissionsManagement() {
     }
   }
 
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending':
