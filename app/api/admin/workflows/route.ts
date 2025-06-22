@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sql } from '@/lib/db'
+import { validateTextLength, sanitizeInput, VALIDATION_LIMITS } from '@/lib/validation'
 
 // GET - List all workflows for admin
 export async function GET() {
@@ -58,6 +59,26 @@ export async function POST(request: NextRequest) {
       steps = []
     } = data
 
+    // Validate input lengths
+    const titleValidation = validateTextLength(title, 'Title', VALIDATION_LIMITS.TITLE_MAX)
+    if (!titleValidation.valid) {
+      return NextResponse.json({ error: titleValidation.error }, { status: 400 })
+    }
+
+    const descriptionValidation = validateTextLength(description, 'Description', VALIDATION_LIMITS.DESCRIPTION_MAX)
+    if (!descriptionValidation.valid) {
+      return NextResponse.json({ error: descriptionValidation.error }, { status: 400 })
+    }
+
+    const contentValidation = validateTextLength(content, 'Content', VALIDATION_LIMITS.CONTENT_MAX)
+    if (!contentValidation.valid) {
+      return NextResponse.json({ error: contentValidation.error }, { status: 400 })
+    }
+
+    // Sanitize text inputs
+    const sanitizedTitle = sanitizeInput(title)
+    const sanitizedDescription = sanitizeInput(description)
+
     // Validate author exists
     const author = await sql`
       SELECT id FROM users WHERE id = ${author_id}
@@ -75,7 +96,7 @@ export async function POST(request: NextRequest) {
         title, slug, description, content, author_id, workflow_type,
         difficulty_level, time_estimate, status, is_featured
       ) VALUES (
-        ${title}, ${slug}, ${description}, ${content}, ${authorId},
+        ${sanitizedTitle}, ${slug}, ${sanitizedDescription}, ${content}, ${authorId},
         ${workflow_type}, ${difficulty_level}, ${time_estimate}, ${status}, ${is_featured}
       )
       RETURNING *

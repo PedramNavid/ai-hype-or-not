@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sql } from '@/lib/db'
+import { validateEmail, validateTextLength, sanitizeInput, VALIDATION_LIMITS, validateURL } from '@/lib/validation'
 
 // GET - List all authors for admin
 export async function GET() {
@@ -50,6 +51,38 @@ export async function POST(request: NextRequest) {
       avatar_url = ''
     } = data
 
+    // Validate email
+    const emailValidation = validateEmail(email)
+    if (!emailValidation.valid) {
+      return NextResponse.json({ error: emailValidation.error }, { status: 400 })
+    }
+
+    // Validate name
+    const nameValidation = validateTextLength(name, 'Name', VALIDATION_LIMITS.TITLE_MAX)
+    if (!nameValidation.valid) {
+      return NextResponse.json({ error: nameValidation.error }, { status: 400 })
+    }
+
+    // Validate bio if provided
+    if (bio) {
+      const bioValidation = validateTextLength(bio, 'Bio', VALIDATION_LIMITS.BIO_MAX)
+      if (!bioValidation.valid) {
+        return NextResponse.json({ error: bioValidation.error }, { status: 400 })
+      }
+    }
+
+    // Validate website URL if provided
+    if (website_url) {
+      const urlValidation = validateURL(website_url)
+      if (!urlValidation.valid) {
+        return NextResponse.json({ error: urlValidation.error }, { status: 400 })
+      }
+    }
+
+    // Sanitize inputs
+    const sanitizedName = sanitizeInput(name)
+    const sanitizedBio = sanitizeInput(bio)
+
     // Generate slug from name
     const baseSlug = name.toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
@@ -75,7 +108,7 @@ export async function POST(request: NextRequest) {
         email, name, bio, slug, github_username, twitter_username,
         linkedin_username, website_url, avatar_url
       ) VALUES (
-        ${email}, ${name}, ${bio}, ${slug}, ${github_username}, 
+        ${email}, ${sanitizedName}, ${sanitizedBio}, ${slug}, ${github_username}, 
         ${twitter_username}, ${linkedin_username}, ${website_url}, ${avatar_url}
       )
       RETURNING *

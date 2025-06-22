@@ -1,5 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { rateLimit } from '@/lib/rate-limit'
+import { validateURL } from '@/lib/validation'
 
 interface ParsedStep {
   step_number: number
@@ -30,8 +32,22 @@ interface ParsedWorkflowData {
   githubUrl: string
 }
 
-export async function POST(request: Request) {
+// Create rate limiter: 5 requests per minute per IP
+const limiter = rateLimit({
+  interval: 60 * 1000, // 1 minute
+  uniqueTokenPerInterval: 5
+})
+
+export async function POST(request: NextRequest) {
   try {
+    // Check rate limit
+    const isAllowed = await limiter(request)
+    if (!isAllowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json(
         { error: 'Anthropic API key not configured' },
@@ -48,12 +64,11 @@ export async function POST(request: Request) {
       )
     }
 
-    // Validate URL format
-    try {
-      new URL(url)
-    } catch {
+    // Validate URL format and security
+    const urlValidation = validateURL(url)
+    if (!urlValidation.valid) {
       return NextResponse.json(
-        { error: 'Invalid URL format' },
+        { error: urlValidation.error },
         { status: 400 }
       )
     }
