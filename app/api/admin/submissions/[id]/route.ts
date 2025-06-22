@@ -1,11 +1,26 @@
 import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth/next'
 import { sql } from '@/lib/db'
+import type { Session } from 'next-auth'
+
+// Check if user is admin
+async function isAdmin(session: Session | null): Promise<boolean> {
+  if (!session?.user?.email) return false
+
+  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || []
+  return adminEmails.includes(session.user.email.toLowerCase())
+}
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getServerSession()
+    if (!session || !(await isAdmin(session))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { id } = await params
     const submissionId = parseInt(id)
     if (isNaN(submissionId)) {
@@ -59,6 +74,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getServerSession()
+    if (!session || !(await isAdmin(session))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { id } = await params
     const submissionId = parseInt(id)
     if (isNaN(submissionId)) {

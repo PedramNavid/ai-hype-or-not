@@ -1,9 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth/next'
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
+import type { Session } from 'next-auth'
+
+// Check if user is admin
+async function isAdmin(session: Session | null): Promise<boolean> {
+  if (!session?.user?.email) return false
+
+  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || []
+  return adminEmails.includes(session.user.email.toLowerCase())
+}
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession()
+    if (!session || !(await isAdmin(session))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const data = await request.formData()
     const file: File | null = data.get('file') as unknown as File
 

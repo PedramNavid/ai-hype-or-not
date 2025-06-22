@@ -1,8 +1,23 @@
 import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth/next'
 import { sql } from '@/lib/db'
+import type { Session } from 'next-auth'
+
+// Check if user is admin
+async function isAdmin(session: Session | null): Promise<boolean> {
+  if (!session?.user?.email) return false
+
+  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || []
+  return adminEmails.includes(session.user.email.toLowerCase())
+}
 
 export async function GET() {
   try {
+    const session = await getServerSession()
+    if (!session || !(await isAdmin(session))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     // Get legacy tool submissions
     const legacySubmissions = await sql`
       SELECT 
