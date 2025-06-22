@@ -1,35 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
 import { sql } from '@/lib/db'
-import type { Session } from 'next-auth'
-
-// Check if user is admin
-async function isAdmin(session: Session | null): Promise<boolean> {
-  if (!session?.user?.email) return false
-  
-  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || []
-  return adminEmails.includes(session.user.email.toLowerCase())
-}
 
 // GET - Get single author
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
-    const session = await getServerSession()
-    
-    if (!session || !(await isAdmin(session))) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const author = await sql`
       SELECT 
         u.*,
         COUNT(DISTINCT w.id) as workflow_count
       FROM users u
       LEFT JOIN workflows w ON u.id = w.author_id
-      WHERE u.id = ${params.id}
+      WHERE u.id = ${id}
       GROUP BY u.id
     `
 
@@ -50,15 +35,10 @@ export async function GET(
 // PUT - Update author
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
-    const session = await getServerSession()
-    
-    if (!session || !(await isAdmin(session))) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const data = await request.json()
     const {
       email,
@@ -75,7 +55,7 @@ export async function PUT(
     // If slug is being updated, check for uniqueness
     if (slug) {
       const existing = await sql`
-        SELECT id FROM users WHERE slug = ${slug} AND id != ${params.id} LIMIT 1
+        SELECT id FROM users WHERE slug = ${slug} AND id != ${id} LIMIT 1
       `
       if (existing.length > 0) {
         return NextResponse.json(
@@ -98,7 +78,7 @@ export async function PUT(
         website_url = ${website_url},
         avatar_url = ${avatar_url},
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = ${params.id}
+      WHERE id = ${id}
       RETURNING *
     `
 
@@ -119,18 +99,13 @@ export async function PUT(
 // DELETE - Delete author
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
-    const session = await getServerSession()
-    
-    if (!session || !(await isAdmin(session))) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     // Check if author has workflows
     const workflows = await sql`
-      SELECT id FROM workflows WHERE author_id = ${params.id} LIMIT 1
+      SELECT id FROM workflows WHERE author_id = ${id} LIMIT 1
     `
 
     if (workflows.length > 0) {
@@ -142,7 +117,7 @@ export async function DELETE(
 
     // Delete author
     const deleted = await sql`
-      DELETE FROM users WHERE id = ${params.id} RETURNING id
+      DELETE FROM users WHERE id = ${id} RETURNING id
     `
 
     if (deleted.length === 0) {

@@ -4,11 +4,11 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface PageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default function EditAuthorPage({ params }: PageProps) {
@@ -16,6 +16,7 @@ export default function EditAuthorPage({ params }: PageProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [authorId, setAuthorId] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     email: '',
     name: '',
@@ -28,20 +29,19 @@ export default function EditAuthorPage({ params }: PageProps) {
     avatar_url: ''
   })
 
+  // Extract author ID from params
   useEffect(() => {
-    if (status === "loading") return
-    
-    if (!session || session.user?.role !== 'admin') {
-      router.push('/admin/signin')
-      return
+    const getParams = async () => {
+      const resolvedParams = await params
+      setAuthorId(resolvedParams.id)
     }
-
-    fetchAuthor()
-  }, [session, status, router, fetchAuthor])
+    getParams()
+  }, [params])
 
   const fetchAuthor = useCallback(async () => {
+    if (!authorId) return
     try {
-      const response = await fetch(`/api/admin/authors/${params.id}`)
+      const response = await fetch(`/api/admin/authors/${authorId}`)
       if (response.ok) {
         const author = await response.json()
         setFormData({
@@ -65,14 +65,25 @@ export default function EditAuthorPage({ params }: PageProps) {
     } finally {
       setLoading(false)
     }
-  }, [params.id, router])
+  }, [authorId, router])
+
+  useEffect(() => {
+    if (status === "loading" || !authorId) return
+    
+    if (!session || session.user?.role !== 'admin') {
+      router.push('/admin/signin')
+      return
+    }
+
+    fetchAuthor()
+  }, [session, status, router, fetchAuthor, authorId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
 
     try {
-      const response = await fetch(`/api/admin/authors/${params.id}`, {
+      const response = await fetch(`/api/admin/authors/${authorId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -113,6 +124,13 @@ export default function EditAuthorPage({ params }: PageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              >
+                <Home className="w-4 h-4" />
+                Home
+              </Link>
               <Link
                 href="/admin/authors"
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900"

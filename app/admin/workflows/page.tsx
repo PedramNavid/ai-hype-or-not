@@ -12,7 +12,9 @@ import {
   Clock,
   Users,
   Star,
-  ArrowLeft
+  ArrowLeft,
+  Send,
+  Home
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -85,6 +87,36 @@ export default function AdminWorkflowsPage() {
     }
   }
 
+  const handlePublish = async (id: string, title: string) => {
+    if (!confirm(`Are you sure you want to publish "${title}"?`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/workflows/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          status: 'published'
+        })
+      })
+
+      if (response.ok) {
+        // Update the workflow in the local state
+        setWorkflows(workflows.map(w => 
+          w.id === id ? { ...w, status: 'published' as const } : w
+        ))
+      } else {
+        alert('Failed to publish workflow')
+      }
+    } catch (error) {
+      console.error('Error publishing workflow:', error)
+      alert('Failed to publish workflow')
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'published': return 'bg-green-100 text-green-800'
@@ -123,6 +155,13 @@ export default function AdminWorkflowsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              >
+                <Home className="w-4 h-4" />
+                Home
+              </Link>
               <Link
                 href="/admin"
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
@@ -272,6 +311,16 @@ export default function AdminWorkflowsPage() {
                               <Edit className="w-3 h-3" />
                             </Button>
                           </Link>
+                          {workflow.status === 'draft' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handlePublish(workflow.id, workflow.title)}
+                              className="text-green-600 hover:text-green-700"
+                            >
+                              <Send className="w-3 h-3" />
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"

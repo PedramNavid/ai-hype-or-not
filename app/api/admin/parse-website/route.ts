@@ -1,13 +1,6 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 
-// Check if user is admin (you can expand this based on your auth logic)
-async function isAdmin(): Promise<boolean> {
-  // For now, just check if ANTHROPIC_API_KEY exists
-  // You may want to add proper session/auth checking here
-  return !!process.env.ANTHROPIC_API_KEY
-}
-
 interface ParsedStep {
   step_number: number
   title: string
@@ -39,14 +32,6 @@ interface ParsedWorkflowData {
 
 export async function POST(request: Request) {
   try {
-    // Check admin permissions
-    if (!(await isAdmin())) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Admin access required' },
-        { status: 401 }
-      )
-    }
-
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json(
         { error: 'Anthropic API key not configured' },

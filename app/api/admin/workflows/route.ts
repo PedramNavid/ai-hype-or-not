@@ -1,24 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
 import { sql } from '@/lib/db'
-import type { Session } from 'next-auth'
-
-// Check if user is admin
-async function isAdmin(session: Session | null): Promise<boolean> {
-  if (!session?.user?.email) return false
-  
-  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || []
-  return adminEmails.includes(session.user.email.toLowerCase())
-}
 
 // GET - List all workflows for admin
 export async function GET() {
   try {
-    const session = await getServerSession()
-    
-    if (!session || !(await isAdmin(session))) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const workflows = await sql`
       SELECT 
@@ -57,12 +42,6 @@ export async function GET() {
 // POST - Create new workflow
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession()
-    
-    if (!session || !(await isAdmin(session))) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const data = await request.json()
     const {
       title,

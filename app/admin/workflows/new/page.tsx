@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
-import { ArrowLeft, Plus, Trash2, Globe } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Globe, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { WebsiteParserForm } from "@/components/website-parser-form"
 
@@ -50,17 +50,6 @@ export default function NewWorkflowPage() {
   const [authors, setAuthors] = useState<Author[]>([])
   const [showWebsiteParser, setShowWebsiteParser] = useState(false)
 
-  useEffect(() => {
-    if (status === "loading") return
-    
-    if (!session || session.user?.role !== 'admin') {
-      router.push('/admin/signin')
-      return
-    }
-    
-    fetchAuthors()
-  }, [session, status, router, fetchAuthors])
-
   const fetchAuthors = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/authors')
@@ -76,6 +65,17 @@ export default function NewWorkflowPage() {
       console.error('Error fetching authors:', error)
     }
   }, [formData.author_id])
+
+  useEffect(() => {
+    if (status === "loading") return
+    
+    if (!session || session.user?.role !== 'admin') {
+      router.push('/admin/signin')
+      return
+    }
+    
+    fetchAuthors()
+  }, [session, status, router, fetchAuthors])
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -223,6 +223,13 @@ export default function NewWorkflowPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              >
+                <Home className="w-4 h-4" />
+                Home
+              </Link>
               <Link
                 href="/admin/workflows"
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900"

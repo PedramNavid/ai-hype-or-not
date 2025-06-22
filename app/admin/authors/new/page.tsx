@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function NewAuthorPage() {
@@ -77,6 +77,13 @@ export default function NewAuthorPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              >
+                <Home className="w-4 h-4" />
+                Home
+              </Link>
               <Link
                 href="/admin/authors"
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900"

@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
 import { sql } from '@/lib/db'
-import type { Session } from 'next-auth'
-
-// Check if user is admin
-async function isAdmin(session: Session | null): Promise<boolean> {
-  if (!session?.user?.email) return false
-  
-  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || []
-  return adminEmails.includes(session.user.email.toLowerCase())
-}
 
 // GET - Get specific workflow for editing
 export async function GET(
@@ -18,11 +8,6 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const session = await getServerSession()
-    
-    if (!session || !(await isAdmin(session))) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     // Get workflow details
     const workflows = await sql`
@@ -81,13 +66,32 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
-    const session = await getServerSession()
-    
-    if (!session || !(await isAdmin(session))) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const data = await request.json()
+    
+    // Check if this is a partial update (only status)
+    const isPartialUpdate = Object.keys(data).length === 1 && 'status' in data
+    
+    if (isPartialUpdate) {
+      // Handle simple status update
+      const { status } = data
+      
+      const workflow = await sql`
+        UPDATE workflows SET
+          status = ${status},
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${id}
+        RETURNING *
+      `
+
+      if (workflow.length === 0) {
+        return NextResponse.json({ error: 'Workflow not found' }, { status: 404 })
+      }
+
+      return NextResponse.json(workflow[0])
+    }
+
+    // Handle full workflow update
     const {
       title,
       slug,
@@ -182,11 +186,6 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    const session = await getServerSession()
-    
-    if (!session || !(await isAdmin(session))) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     // Delete workflow (cascade will handle related records)
     const result = await sql`

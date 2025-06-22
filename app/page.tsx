@@ -19,6 +19,7 @@ interface Workflow {
   save_count: number
   tools: string[]
   created_at: string
+  is_featured: boolean
 }
 
 async function getWorkflows(): Promise<{ featured: Workflow[], recent: Workflow[] }> {

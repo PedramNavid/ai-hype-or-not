@@ -1,28 +1,8 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
 import { sql } from '@/lib/db'
-import type { Session } from 'next-auth'
-
-// Check admin status
-async function isAdmin(session: Session | null): Promise<boolean> {
-  if (!session?.user?.email) return false
-  
-  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || []
-  return adminEmails.includes(session.user.email.toLowerCase())
-}
 
 export async function GET() {
   try {
-    // Check if user is admin
-    const session = await getServerSession()
-    
-    if (!session || !(await isAdmin(session))) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
     // Get total workflows and total views
     const totals = await sql`
       SELECT 

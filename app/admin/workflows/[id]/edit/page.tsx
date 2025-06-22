@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
-import { ArrowLeft, Plus, Trash2 } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Tool {
@@ -58,20 +58,6 @@ export default function EditWorkflowPage({ params }: { params: Promise<{ id: str
     getParams()
   }, [params])
 
-  useEffect(() => {
-    if (status === "loading") return
-    
-    if (!session || session.user?.role !== 'admin') {
-      router.push('/admin/signin')
-      return
-    }
-
-    if (workflowId) {
-      fetchWorkflow()
-      fetchAuthors()
-    }
-  }, [session, status, router, workflowId, fetchWorkflow, fetchAuthors])
-
   const fetchAuthors = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/authors')
@@ -116,8 +102,22 @@ export default function EditWorkflowPage({ params }: { params: Promise<{ id: str
     }
   }, [workflowId, router])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  useEffect(() => {
+    if (status === "loading") return
+    
+    if (!session || session.user?.role !== 'admin') {
+      router.push('/admin/signin')
+      return
+    }
+
+    if (workflowId) {
+      fetchWorkflow()
+      fetchAuthors()
+    }
+  }, [session, status, router, workflowId, fetchWorkflow, fetchAuthors])
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
     setLoading(true)
 
     try {
@@ -208,6 +208,13 @@ export default function EditWorkflowPage({ params }: { params: Promise<{ id: str
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-4">
               <Link
+                href="/"
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              >
+                <Home className="w-4 h-4" />
+                Home
+              </Link>
+              <Link
                 href="/admin/workflows"
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
               >
@@ -215,6 +222,11 @@ export default function EditWorkflowPage({ params }: { params: Promise<{ id: str
                 Back to Workflows
               </Link>
               <h1 className="text-2xl font-bold text-gray-900">Edit Workflow</h1>
+            </div>
+            <div className="flex gap-4">
+              <Button onClick={handleSubmit} disabled={loading}>
+                {loading ? 'Updating...' : 'Update Workflow'}
+              </Button>
             </div>
           </div>
         </div>
