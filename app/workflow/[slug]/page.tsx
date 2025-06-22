@@ -7,6 +7,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import type { Metadata } from 'next'
 
 interface Workflow {
   id: string
@@ -203,6 +204,62 @@ function WorkflowContent({ content }: { content: string }) {
   )
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const workflow = await getWorkflow(slug)
+
+  if (!workflow) {
+    return {
+      title: 'Workflow Not Found',
+    }
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://aihypeornot.com'
+  const workflowUrl = `${siteUrl}/workflow/${workflow.slug}`
+  
+  // Create a rich description including tools and time estimate
+  const toolsList = workflow.tools
+    .filter(t => t.is_required)
+    .map(t => t.tool_name)
+    .slice(0, 3)
+    .join(', ')
+  
+  const enhancedDescription = `${workflow.description} | Tools: ${toolsList} | ${workflow.time_estimate} | By ${workflow.author.name}`
+
+  return {
+    title: `${workflow.title} - LLM Workflow`,
+    description: enhancedDescription,
+    openGraph: {
+      title: workflow.title,
+      description: workflow.description,
+      url: workflowUrl,
+      siteName: 'LLM Workflows',
+      type: 'article',
+      publishedTime: workflow.created_at,
+      modifiedTime: workflow.updated_at,
+      authors: [workflow.author.name],
+      images: [
+        {
+          url: `${siteUrl}/api/og?title=${encodeURIComponent(workflow.title)}&author=${encodeURIComponent(workflow.author.name)}&type=${workflow.workflow_type}&difficulty=${workflow.difficulty_level}&time=${encodeURIComponent(workflow.time_estimate)}`,
+          width: 1200,
+          height: 630,
+          alt: workflow.title,
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: workflow.title,
+      description: workflow.description,
+      images: [`${siteUrl}/api/og?title=${encodeURIComponent(workflow.title)}&author=${encodeURIComponent(workflow.author.name)}&type=${workflow.workflow_type}&difficulty=${workflow.difficulty_level}&time=${encodeURIComponent(workflow.time_estimate)}`],
+      creator: workflow.author.twitter_username ? `@${workflow.author.twitter_username}` : undefined,
+    },
+    alternates: {
+      canonical: workflowUrl,
+    },
+  }
+}
+
 export default async function WorkflowPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const workflow = await getWorkflow(slug)
@@ -224,8 +281,45 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
     advanced: "bg-orange-100 text-orange-800",
   }
 
+  // JSON-LD structured data for SEO
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: workflow.title,
+    description: workflow.description,
+    author: {
+      '@type': 'Person',
+      name: workflow.author.name,
+    },
+    datePublished: workflow.created_at,
+    dateModified: workflow.updated_at,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${process.env.NEXT_PUBLIC_BASE_URL || 'https://aihypeornot.com'}/workflow/${workflow.slug}`,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'LLM Workflows',
+    },
+    keywords: workflow.tools.map(t => t.tool_name).join(', '),
+    about: {
+      '@type': 'Thing',
+      name: 'AI Development Workflow',
+    },
+    audience: {
+      '@type': 'Audience',
+      audienceType: 'Developers',
+    },
+    educationalLevel: workflow.difficulty_level,
+    timeRequired: workflow.time_estimate,
+  }
+
   return (
     <div className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
 
       <main className="container mx-auto px-4 py-8 max-w-5xl">
