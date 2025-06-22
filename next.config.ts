@@ -41,7 +41,7 @@ const securityHeaders = [
       frame-src 'self';
       object-src 'none';
       base-uri 'self';
-      form-action 'self';
+      form-action 'self' https://www.hypeflo.ws;
       frame-ancestors 'none';
       upgrade-insecure-requests;
     `.replace(/\s{2,}/g, ' ').trim()
