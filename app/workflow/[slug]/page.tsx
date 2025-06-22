@@ -216,6 +216,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://aihypeornot.com'
   const workflowUrl = `${siteUrl}/workflow/${workflow.slug}`
+  const dynamicOgUrl = `${siteUrl}/api/og?title=${encodeURIComponent(workflow.title)}&author=${encodeURIComponent(workflow.author.name)}&type=${workflow.workflow_type}&difficulty=${workflow.difficulty_level}&time=${encodeURIComponent(workflow.time_estimate)}`
+  const fallbackOgUrl = `${siteUrl}/og-image.png`
   
   // Create a rich description including tools and time estimate
   const toolsList = workflow.tools
@@ -240,10 +242,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       authors: [workflow.author.name],
       images: [
         {
-          url: `${siteUrl}/api/og?title=${encodeURIComponent(workflow.title)}&author=${encodeURIComponent(workflow.author.name)}&type=${workflow.workflow_type}&difficulty=${workflow.difficulty_level}&time=${encodeURIComponent(workflow.time_estimate)}`,
+          url: dynamicOgUrl,
           width: 1200,
           height: 630,
           alt: workflow.title,
+        },
+        {
+          url: fallbackOgUrl,
+          width: 1200,
+          height: 630,
+          alt: 'LLM Workflows',
         }
       ],
     },
@@ -251,7 +259,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       card: 'summary_large_image',
       title: workflow.title,
       description: workflow.description,
-      images: [`${siteUrl}/api/og?title=${encodeURIComponent(workflow.title)}&author=${encodeURIComponent(workflow.author.name)}&type=${workflow.workflow_type}&difficulty=${workflow.difficulty_level}&time=${encodeURIComponent(workflow.time_estimate)}`],
+      images: [dynamicOgUrl],
       creator: workflow.author.twitter_username ? `@${workflow.author.twitter_username}` : undefined,
     },
     alternates: {

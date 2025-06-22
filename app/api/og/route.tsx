@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     const typeColor = typeColors[type] || typeColors.workflow
     const difficultyColor = difficultyColors[difficulty] || difficultyColors.intermediate
 
-    return new ImageResponse(
+    const imageResponse = new ImageResponse(
       (
         <div
           style={{
@@ -248,8 +248,14 @@ export async function GET(request: NextRequest) {
         ] : [],
       }
     )
-  } catch (e: any) {
-    console.log(`${e.message}`)
+
+    // Set proper headers for social media crawlers
+    imageResponse.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
+    imageResponse.headers.set('Content-Type', 'image/png')
+    
+    return imageResponse
+  } catch (e) {
+    console.log(`${e instanceof Error ? e.message : 'Unknown error'}`)
     return new Response(`Failed to generate the image`, {
       status: 500,
     })

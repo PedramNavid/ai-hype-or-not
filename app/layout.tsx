@@ -13,7 +13,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://aihypeornot.com'
+const ogImageUrl = `${siteUrl}/og-image.png`
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: 'LLM Workflows - Community-Driven AI Development Workflows',
     template: '%s | LLM Workflows'
@@ -25,13 +29,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://aihypeornot.com',
+    url: siteUrl,
     siteName: 'LLM Workflows',
     title: 'LLM Workflows - Community-Driven AI Development Workflows',
     description: "Discover battle-tested AI and LLM workflows from developers using AI to ship faster. Real experiences, not theory.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://aihypeornot.com'}/api/og?title=LLM%20Workflows&author=Community&type=workflow&difficulty=intermediate&time=`,
+        url: ogImageUrl,
         width: 1200,
         height: 630,
         alt: 'LLM Workflows - Community-Driven AI Development',
@@ -42,10 +46,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'LLM Workflows - Community-Driven AI Development Workflows',
     description: "Discover battle-tested AI and LLM workflows from developers using AI to ship faster. Real experiences, not theory.",
-    images: [`${process.env.NEXT_PUBLIC_BASE_URL || 'https://aihypeornot.com'}/api/og?title=LLM%20Workflows&author=Community&type=workflow&difficulty=intermediate&time=`],
+    images: [ogImageUrl],
     creator: '@llmworkflows',
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://aihypeornot.com'),
   alternates: {
     canonical: '/',
   },
