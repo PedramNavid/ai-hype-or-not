@@ -6,7 +6,8 @@
       "Bash(bun run lint:*)",
       "Bash(bun run:*)",
       "Bash(git push:*)",
-      "WebFetch(domain:harper.blog)"
+      "WebFetch(domain:harper.blog)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }
