@@ -4,9 +4,10 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
-import { ArrowLeft, Plus, Trash2, Globe, Home } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Globe, Home, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { WebsiteParserForm } from "@/components/website-parser-form"
+import { TextParserForm } from "@/components/text-parser-form"
 
 interface Tool {
   tool_name: string
@@ -49,6 +50,7 @@ export default function NewWorkflowPage() {
   const [steps, setSteps] = useState<Step[]>([])
   const [authors, setAuthors] = useState<Author[]>([])
   const [showWebsiteParser, setShowWebsiteParser] = useState(false)
+  const [showTextParser, setShowTextParser] = useState(false)
 
   const fetchAuthors = useCallback(async () => {
     try {
@@ -200,8 +202,9 @@ export default function NewWorkflowPage() {
       setSteps(data.steps)
     }
     
-    // Hide the parser form
+    // Hide the parser forms
     setShowWebsiteParser(false)
+    setShowTextParser(false)
   }
 
   if (status === "loading") {
@@ -239,14 +242,24 @@ export default function NewWorkflowPage() {
               </Link>
               <h1 className="text-2xl font-bold text-gray-900">New Workflow</h1>
             </div>
-            <Button
-              onClick={() => setShowWebsiteParser(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-              size="sm"
-            >
-              <Globe className="w-4 h-4 mr-2" />
-              Parse Website
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowTextParser(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+                size="sm"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Parse Text
+              </Button>
+              <Button
+                onClick={() => setShowWebsiteParser(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+                size="sm"
+              >
+                <Globe className="w-4 h-4 mr-2" />
+                Parse Website
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -257,6 +270,15 @@ export default function NewWorkflowPage() {
             <WebsiteParserForm
               onParsedData={handleParsedData}
               onCancel={() => setShowWebsiteParser(false)}
+            />
+          </div>
+        )}
+
+        {showTextParser && (
+          <div className="mb-8">
+            <TextParserForm
+              onParsedData={handleParsedData}
+              onCancel={() => setShowTextParser(false)}
             />
           </div>
         )}
