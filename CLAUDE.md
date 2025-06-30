@@ -24,6 +24,15 @@ bun run start
 # Run linting
 bun run lint
 
+# Run tests
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
 # Run database migration (creates schema and seeds data)
 bun run db:migrate
 
@@ -72,7 +81,7 @@ psql $DATABASE_URL
 - **Author Management**: Full CRUD operations for author profiles with social links
 - **Routing**: File-based with dynamic routes for workflows and authors
 - **Theming**: CSS custom properties defined for light/dark theme support
-- **No Testing**: No test framework currently configured
+- **Testing**: Jest with React Testing Library for unit and integration tests
 
 ## Important Files
 - `app/page.tsx`: Homepage with workflow listing
