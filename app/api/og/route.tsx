@@ -226,18 +226,6 @@ export async function GET(request: NextRequest) {
       {
         width: 1200,
         height: 630,
-        fonts: [
-          {
-            name: 'system-ui',
-            style: 'normal',
-            weight: 400,
-          },
-          {
-            name: 'system-ui',
-            style: 'normal',
-            weight: 700,
-          },
-        ],
       }
     )
 

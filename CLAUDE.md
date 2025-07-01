@@ -135,6 +135,10 @@ ADMIN_EMAILS=your-email@example.com,another-admin@example.com
 
 # AI Website Parsing (Optional)
 ANTHROPIC_API_KEY=your-anthropic-api-key-here
+
+# Cloudflare Turnstile (Anti-spam)
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=your-turnstile-site-key
+TURNSTILE_SECRET_KEY=your-turnstile-secret-key
 ```
 
 ### Setup Instructions
@@ -142,7 +146,9 @@ ANTHROPIC_API_KEY=your-anthropic-api-key-here
 2. Create Google OAuth credentials at https://console.cloud.google.com/
 3. Add your email address to `ADMIN_EMAILS` environment variable
 4. (Optional) Add `ANTHROPIC_API_KEY` for AI-powered website parsing feature
-5. Access admin panel at `/admin` after authentication
+5. Create Cloudflare Turnstile widget at https://dash.cloudflare.com/turnstile
+6. Add Turnstile keys to environment variables for spam protection
+7. Access admin panel at `/admin` after authentication
 
 ### AI Website Parsing Feature
 The admin panel includes an AI-powered website parsing feature that can extract workflow information from existing web content:

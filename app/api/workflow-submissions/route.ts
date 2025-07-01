@@ -1,6 +1,25 @@
 import { NextResponse } from "next/server"
 import { sql } from "@/lib/db"
 
+async function verifyTurnstile(token: string): Promise<boolean> {
+  const formData = new FormData()
+  formData.append('secret', process.env.TURNSTILE_SECRET_KEY!)
+  formData.append('response', token)
+  
+  try {
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      body: formData,
+    })
+    
+    const data = await response.json()
+    return data.success === true
+  } catch (error) {
+    console.error('Turnstile verification error:', error)
+    return false
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -14,12 +33,29 @@ export async function POST(request: Request) {
       submitterName: submitter_name,
       submitterEmail: submitter_email,
       githubUrl: github_url,
+      turnstileToken,
     } = body
 
     // Validate required fields
     if (!title || !description || !workflow_type || !content || !submitter_name || !submitter_email) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      )
+    }
+
+    // Verify Turnstile token
+    if (!turnstileToken) {
+      return NextResponse.json(
+        { error: "Security verification required" },
+        { status: 400 }
+      )
+    }
+
+    const isValidToken = await verifyTurnstile(turnstileToken)
+    if (!isValidToken) {
+      return NextResponse.json(
+        { error: "Security verification failed" },
         { status: 400 }
       )
     }

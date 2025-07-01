@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Send, Plus, X } from "lucide-react"
+import { Turnstile, TurnstileInstance } from "@marsidev/react-turnstile"
 
 interface FormData {
   title: string
@@ -33,6 +34,8 @@ export function WorkflowSubmitForm() {
   const [newTool, setNewTool] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const turnstileRef = useRef<TurnstileInstance>(null)
 
   const workflowTypes = [
     { value: "greenfield", label: "Greenfield Development" },
@@ -66,6 +69,12 @@ export function WorkflowSubmitForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!turnstileToken) {
+      alert("Please complete the security check.")
+      return
+    }
+    
     setIsSubmitting(true)
 
     try {
@@ -76,7 +85,8 @@ export function WorkflowSubmitForm() {
         },
         body: JSON.stringify({
           ...formData,
-          tools_used: JSON.stringify(formData.tools)
+          tools_used: JSON.stringify(formData.tools),
+          turnstileToken
         }),
       })
 
@@ -90,6 +100,9 @@ export function WorkflowSubmitForm() {
       alert("Failed to submit workflow. Please try again.")
     } finally {
       setIsSubmitting(false)
+      // Reset Turnstile for next submission
+      turnstileRef.current?.reset()
+      setTurnstileToken(null)
     }
   }
 
@@ -357,11 +370,28 @@ Continue with next step...
         </div>
       </div>
 
+      {/* Turnstile CAPTCHA */}
+      <div className="flex justify-center">
+        <Turnstile
+          ref={turnstileRef}
+          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+          onSuccess={(token) => setTurnstileToken(token)}
+          onError={() => {
+            setTurnstileToken(null)
+            alert("Security verification failed. Please try again.")
+          }}
+          onExpire={() => {
+            setTurnstileToken(null)
+            turnstileRef.current?.reset()
+          }}
+        />
+      </div>
+
       {/* Submit Button */}
       <div className="pt-6">
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !turnstileToken}
           className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
         >
           {isSubmitting ? (
