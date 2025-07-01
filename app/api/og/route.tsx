@@ -3,13 +3,7 @@ import { NextRequest } from 'next/server'
 
 export const runtime = 'edge'
 
-const interBold = fetch(
-  new URL('./Inter-Bold.ttf', import.meta.url)
-).then((res) => res.arrayBuffer()).catch(() => null)
-
-const interRegular = fetch(
-  new URL('./Inter-Regular.ttf', import.meta.url)
-).then((res) => res.arrayBuffer()).catch(() => null)
+// Removed custom fonts to reduce Edge Function size
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,8 +16,7 @@ export async function GET(request: NextRequest) {
     const difficulty = searchParams.get('difficulty') || 'intermediate'
     const time = searchParams.get('time') || ''
 
-    const fontDataBold = await interBold
-    const fontDataRegular = await interRegular
+    // Using system fonts instead of custom fonts
 
     // Define colors for workflow types
     const typeColors: Record<string, { bg: string; text: string }> = {
@@ -136,6 +129,7 @@ export async function GET(request: NextRequest) {
             <h1
               style={{
                 fontSize: '72px',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
                 fontWeight: 700,
                 color: '#111827',
                 lineHeight: 1.1,
@@ -232,20 +226,18 @@ export async function GET(request: NextRequest) {
       {
         width: 1200,
         height: 630,
-        fonts: fontDataBold && fontDataRegular ? [
+        fonts: [
           {
-            name: 'Inter',
-            data: fontDataBold,
-            style: 'normal',
-            weight: 700,
-          },
-          {
-            name: 'Inter',
-            data: fontDataRegular,
+            name: 'system-ui',
             style: 'normal',
             weight: 400,
           },
-        ] : [],
+          {
+            name: 'system-ui',
+            style: 'normal',
+            weight: 700,
+          },
+        ],
       }
     )
 
