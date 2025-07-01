@@ -33,12 +33,12 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: `
       default-src 'self';
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live;
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://challenges.cloudflare.com;
       style-src 'self' 'unsafe-inline';
       img-src 'self' data: https: blob:;
       font-src 'self';
-      connect-src 'self' https://api.github.com https://api.anthropic.com;
-      frame-src 'self';
+      connect-src 'self' https://api.github.com https://api.anthropic.com https://challenges.cloudflare.com;
+      frame-src 'self' https://challenges.cloudflare.com;
       object-src 'none';
       base-uri 'self';
       form-action 'self' https://www.hypeflo.ws https://www.hypeflo.ws/api/auth/* https://accounts.google.com https://github.com;
