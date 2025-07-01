@@ -1,6 +1,7 @@
 import { Header } from "@/components/header"
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Clock, Eye, Bookmark, User, Copy, Check, ChevronRight, BookOpen } from "lucide-react"
 import { sql } from "@/lib/db"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -369,10 +370,12 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
                 <div className="flex items-center justify-between py-6 border-y border-gray-200 mb-8">
                     <Link href={`/authors/${workflow.author.slug}`} className="flex items-center gap-4 hover:opacity-80 transition-opacity">
                         {workflow.author.avatar_url ? (
-                            <img
+                            <Image
                                 src={workflow.author.avatar_url}
                                 alt={workflow.author.name}
                                 className="w-12 h-12 rounded-full"
+                                width={48}
+                                height={48}
                             />
                         ) : (
                             <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">

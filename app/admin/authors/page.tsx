@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Plus, Edit, Trash2, ExternalLink, Home, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -150,10 +151,12 @@ export default function AuthorsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         {author.avatar_url && (
-                          <img
+                          <Image
                             className="h-10 w-10 rounded-full mr-3"
                             src={author.avatar_url}
                             alt={author.name}
+                            width={40}
+                            height={40}
                           />
                         )}
                         <div>

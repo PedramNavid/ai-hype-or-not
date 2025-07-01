@@ -137,46 +137,6 @@ export function TextParserModal({ isOpen, onClose, onParsedData }: TextParserMod
     }
   }
 
-  const addStep = () => {
-    if (parsedData) {
-      setParsedData({
-        ...parsedData,
-        steps: [...parsedData.steps, {
-          step_number: parsedData.steps.length + 1,
-          title: '',
-          description: '',
-          code_snippet: '',
-          prompt_template: '',
-          tips: ''
-        }]
-      })
-    }
-  }
-
-  const updateStep = (index: number, field: keyof ParsedStep, value: string | number) => {
-    if (parsedData) {
-      const updatedSteps = [...parsedData.steps]
-      updatedSteps[index] = { ...updatedSteps[index], [field]: value }
-      setParsedData({
-        ...parsedData,
-        steps: updatedSteps
-      })
-    }
-  }
-
-  const removeStep = (index: number) => {
-    if (parsedData) {
-      const updatedSteps = parsedData.steps.filter((_, i) => i !== index)
-      // Renumber steps
-      updatedSteps.forEach((step, i) => {
-        step.step_number = i + 1
-      })
-      setParsedData({
-        ...parsedData,
-        steps: updatedSteps
-      })
-    }
-  }
 
   if (!isOpen) return null
 

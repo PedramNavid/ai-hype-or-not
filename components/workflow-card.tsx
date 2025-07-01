@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Clock, Eye, Bookmark, User } from "lucide-react"
 
 interface WorkflowCardProps {
@@ -81,10 +82,12 @@ export function WorkflowCard({ workflow }: WorkflowCardProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {workflow.author.avatar_url ? (
-                <img
+                <Image
                   src={workflow.author.avatar_url}
                   alt={workflow.author.name}
                   className="w-6 h-6 rounded-full"
+                  width={24}
+                  height={24}
                 />
               ) : (
                 <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">

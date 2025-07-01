@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Calendar, Clock, ArrowLeft } from 'lucide-react'
 
 interface PageProps {
@@ -104,10 +105,12 @@ export default async function AuthorPage({ params }: PageProps) {
 
             <div className="flex items-start gap-6">
               {author.avatar_url && (
-                <img
+                <Image
                   src={author.avatar_url}
                   alt={author.name}
                   className="w-24 h-24 rounded-full object-cover"
+                  width={96}
+                  height={96}
                 />
               )}
               <div className="flex-1">

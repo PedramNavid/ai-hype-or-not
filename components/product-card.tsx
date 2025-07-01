@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Star } from "lucide-react"
 
 interface Product {
@@ -22,10 +23,12 @@ export function ProductCard({ product }: ProductCardProps) {
     <Link href={`/product/${product.slug}`}>
       <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-gray-300 hover:shadow-lg transition-all duration-300 group">
         <div className="aspect-video bg-gray-100 relative overflow-hidden">
-          <img
+          <Image
             src={product.image || "/placeholder.svg"}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           <div className="absolute top-4 right-4">
             <div

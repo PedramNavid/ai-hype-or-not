@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
+import Image from "next/image"
 import { Upload, X, Image as ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -87,10 +88,12 @@ export function ImageUpload({ onImageUploaded, currentImageUrl, onRemove }: Imag
     <div className="space-y-3">
       {currentImageUrl ? (
         <div className="relative">
-          <img
+          <Image
             src={currentImageUrl}
             alt="Uploaded screenshot"
             className="max-w-full h-32 object-cover rounded-md border border-gray-200"
+            width={400}
+            height={128}
           />
           {onRemove && (
             <button
