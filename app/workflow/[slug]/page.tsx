@@ -1,11 +1,10 @@
 import { Header } from "@/components/header"
+import { MarkdownRenderer } from "@/components/markdown-renderer"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { Clock, Eye, Bookmark, User, Copy, Check, ChevronRight, BookOpen } from "lucide-react"
 import { sql } from "@/lib/db"
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { Metadata } from 'next'
@@ -123,87 +122,6 @@ async function getWorkflow(slug: string): Promise<Workflow | null> {
     }
 }
 
-// Markdown component for rendering workflow content
-function WorkflowContent({ content }: { content: string }) {
-    return (
-        <div className="prose prose-gray max-w-none">
-            <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                    code({ className, children }) {
-                        const match = /language-(\w+)/.exec(className || '')
-                        const language = match ? match[1] : 'text'
-
-                        // Check if this is a fenced code block (has className starting with 'language-' or contains newlines)
-                        const isCodeBlock = className?.startsWith('language-') || String(children).includes('\n')
-
-                        return isCodeBlock ? (
-                            <SyntaxHighlighter
-                                style={tomorrow}
-                                language={language}
-                                customStyle={{
-                                    margin: 0,
-                                    borderRadius: '0.5rem',
-                                    padding: '1rem',
-                                } as React.CSSProperties}
-                            >
-                                {String(children).replace(/\n$/, '')}
-                            </SyntaxHighlighter>
-                        ) : (
-                            <code className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">
-                                {children}
-                            </code>
-                        )
-                    },
-                    h1: ({ children }) => (
-                        <h1 className="text-3xl font-bold mt-8 mb-4 text-gray-900">{children}</h1>
-                    ),
-                    h2: ({ children }) => (
-                        <h2 className="text-2xl font-bold mt-6 mb-3 text-gray-900">{children}</h2>
-                    ),
-                    h3: ({ children }) => (
-                        <h3 className="text-xl font-bold mt-4 mb-2 text-gray-900">{children}</h3>
-                    ),
-                    p: ({ children }) => (
-                        <p className="mb-4 leading-relaxed text-gray-700">{children}</p>
-                    ),
-                    ul: ({ children }) => (
-                        <ul className="list-disc list-inside mb-4 space-y-2">{children}</ul>
-                    ),
-                    ol: ({ children }) => (
-                        <ol className="list-decimal list-inside mb-4 space-y-2">{children}</ol>
-                    ),
-                    li: ({ children }) => (
-                        <li className="text-gray-700">{children}</li>
-                    ),
-                    strong: ({ children }) => (
-                        <strong className="font-bold text-gray-900">{children}</strong>
-                    ),
-                    em: ({ children }) => (
-                        <em className="italic text-gray-800">{children}</em>
-                    ),
-                    a: ({ href, children }) => (
-                        <a
-                            href={href}
-                            className="text-blue-600 hover:text-blue-800 underline"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            {children}
-                        </a>
-                    ),
-                    blockquote: ({ children }) => (
-                        <blockquote className="border-l-4 border-gray-300 pl-4 my-4 italic text-gray-700">
-                            {children}
-                        </blockquote>
-                    ),
-                }}
-            >
-                {content}
-            </ReactMarkdown>
-        </div>
-    )
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params
@@ -569,7 +487,7 @@ export default async function WorkflowPage({ params }: { params: Promise<{ slug:
 
                 {/* Main Content */}
                 <section className="mb-12">
-                    <WorkflowContent content={workflow.content} />
+                    <MarkdownRenderer content={workflow.content} />
                 </section>
 
                 {/* Comments Section */}

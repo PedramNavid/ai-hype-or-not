@@ -49,6 +49,22 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pbs.twimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'motherduck.com',
+      },
+    ],
+  },
   async headers() {
     return [
       {
