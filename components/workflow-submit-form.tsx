@@ -18,6 +18,8 @@ interface FormData {
 }
 
 export function WorkflowSubmitForm() {
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+  
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
@@ -371,20 +373,40 @@ Continue with next step...
       </div>
 
       {/* Turnstile CAPTCHA */}
-      <div className="flex justify-center">
-        <Turnstile
-          ref={turnstileRef}
-          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-          onSuccess={(token) => setTurnstileToken(token)}
-          onError={() => {
-            setTurnstileToken(null)
-            alert("Security verification failed. Please try again.")
-          }}
-          onExpire={() => {
-            setTurnstileToken(null)
-            turnstileRef.current?.reset()
-          }}
-        />
+      <div className="border-t pt-6">
+        <div className="mb-4 text-sm text-gray-600 text-center">
+          Please complete the security check below
+        </div>
+        <div className="flex justify-center">
+          {!siteKey ? (
+            <div className="text-red-600 text-sm">
+              Error: Turnstile site key not configured. Please check environment variables.
+            </div>
+          ) : (
+            <Turnstile
+              ref={turnstileRef}
+              siteKey={siteKey}
+              onSuccess={(token) => {
+                console.log('Turnstile success:', token)
+                setTurnstileToken(token)
+              }}
+              onError={() => {
+                console.error('Turnstile error')
+                setTurnstileToken(null)
+                alert("Security verification failed. Please try again.")
+              }}
+              onExpire={() => {
+                console.log('Turnstile expired')
+                setTurnstileToken(null)
+                turnstileRef.current?.reset()
+              }}
+              options={{
+                theme: 'light',
+                size: 'normal',
+              }}
+            />
+          )}
+        </div>
       </div>
 
       {/* Submit Button */}
@@ -398,6 +420,11 @@ Continue with next step...
             <>
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
               Submitting...
+            </>
+          ) : !turnstileToken ? (
+            <>
+              <Send className="w-4 h-4 opacity-50" />
+              Complete Security Check Above
             </>
           ) : (
             <>
