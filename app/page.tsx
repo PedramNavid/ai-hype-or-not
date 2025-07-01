@@ -87,7 +87,7 @@ async function getWorkflows(): Promise<{ featured: Workflow[], recent: Workflow[
         WHERE w.status = 'published' AND (w.is_featured = false OR w.is_featured IS NULL)
         GROUP BY w.id, u.id
         ORDER BY w.created_at DESC
-        LIMIT 6
+        LIMIT 21
       `
       
       return {
@@ -114,7 +114,7 @@ async function getWorkflows(): Promise<{ featured: Workflow[], recent: Workflow[
   
   // Split into featured and recent on client side
   const featured = workflows.filter((w: Workflow) => w.is_featured).slice(0, 3)
-  const recent = workflows.filter((w: Workflow) => !w.is_featured).slice(0, 6)
+  const recent = workflows.filter((w: Workflow) => !w.is_featured).slice(0, 21)
   
   return { featured, recent }
 }
