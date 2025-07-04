@@ -45,8 +45,8 @@ export async function GET(request: NextRequest) {
             width: '100%',
             display: 'flex',
             flexDirection: 'column',
-            backgroundColor: '#ffffff',
-            backgroundImage: 'linear-gradient(to bottom right, #f0f9ff, #e0f2fe)',
+            backgroundColor: '#1a1a1a',
+            backgroundImage: 'linear-gradient(to bottom right, #1a1a1a, #2d2d2d)',
           }}
         >
           {/* Top border accent */}
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
               left: 0,
               right: 0,
               height: '8px',
-              background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
+              background: 'linear-gradient(to right, #ff6b35, #ffa500)',  // Orange gradient to match retro logo
             }}
           />
 
@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
                 fontSize: '72px',
                 fontFamily: 'system-ui, -apple-system, sans-serif',
                 fontWeight: 700,
-                color: '#111827',
+                color: '#ffffff',
                 lineHeight: 1.1,
                 marginBottom: '24px',
                 flex: 1,
@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
                     width: '60px',
                     height: '60px',
                     borderRadius: '50%',
-                    backgroundColor: '#3b82f6',
+                    backgroundColor: '#ff6b35',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -184,7 +184,7 @@ export async function GET(request: NextRequest) {
                   <div
                     style={{
                       fontSize: '20px',
-                      color: '#6b7280',
+                      color: '#a0a0a0',
                     }}
                   >
                     by
@@ -192,7 +192,7 @@ export async function GET(request: NextRequest) {
                   <div
                     style={{
                       fontSize: '28px',
-                      color: '#111827',
+                      color: '#ffffff',
                       fontWeight: 600,
                     }}
                   >
@@ -205,18 +205,69 @@ export async function GET(request: NextRequest) {
               <div
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
+                  flexDirection: 'column',
+                  alignItems: 'flex-end',
+                  gap: '0',
                 }}
               >
                 <div
                   style={{
-                    fontSize: '32px',
-                    fontWeight: 700,
-                    color: '#3b82f6',
+                    fontSize: '40px',
+                    fontWeight: 900,
+                    color: '#ffffff',
+                    letterSpacing: '-2px',
+                    lineHeight: '0.9',
+                    position: 'relative',
+                    display: 'flex',
+                    flexDirection: 'column',
                   }}
                 >
-                  LLM Workflows
+                  <span>hypeflows</span>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '-8px',
+                      left: '0',
+                      right: '0',
+                      height: '3px',
+                      background: '#22c55e',
+                      display: 'flex',
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '-12px',
+                      left: '0',
+                      right: '0',
+                      height: '3px',
+                      background: '#ff6b35',
+                      display: 'flex',
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '-16px',
+                      left: '0',
+                      right: '0',
+                      height: '3px',
+                      background: '#ffa500',
+                      display: 'flex',
+                    }}
+                  />
+                </div>
+                <div
+                  style={{
+                    fontSize: '12px',
+                    color: '#ffa500',
+                    letterSpacing: '2px',
+                    marginTop: '20px',
+                    textTransform: 'uppercase',
+                    fontWeight: 700,
+                  }}
+                >
+                  AI AND LLM WORKFLOWS
                 </div>
               </div>
             </div>
