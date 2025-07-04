@@ -7,7 +7,24 @@
       "Bash(bun run:*)",
       "Bash(git push:*)",
       "WebFetch(domain:harper.blog)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(magick:*)",
+      "Bash(-fill '#00ff00' -pointsize 48 -gravity center -annotate +0-120 '> HYPE FLOWS' )",
+      "Bash(-fill '#00ff00' -pointsize 24 -gravity center -annotate +0-60 'AI AND LLM WORKFLOWS' )",
+      "Bash(-fill '#00ff00' -pointsize 18 -gravity center -annotate +0+20 'COMMUNITY-DRIVEN DEVELOPMENT' )",
+      "Bash(-fill '#00ff00' -pointsize 14 -gravity southeast -annotate +20+20 'READY.' )",
+      "Bash(-fill '#00ff00' -draw \"rectangle 100,500 110,510\" )",
+      "Bash(-fill '#00ff00' -pointsize 16 -gravity southwest -annotate +120+120 '_' )",
+      "Bash(public/og-terminal.png)",
+      "Bash(-fill '#000000' -draw \"rectangle 0,0 1200,30\" )",
+      "Bash(-fill '#ffffff' -pointsize 16 -gravity northwest -annotate +20+10 '🍎 HypeFlows v1.0' )",
+      "Bash(-fill '#000000' -pointsize 64 -gravity center -annotate +0-80 'HYPE FLOWS' )",
+      "Bash(-fill '#666666' -pointsize 20 -gravity center -annotate +0-20 'AI and LLM Workflows' )",
+      "Bash(-fill '#000000' -pointsize 16 -gravity center -annotate +0+40 'Community-driven development workflows' )",
+      "Bash(-fill '#000000' -draw \"rectangle 400,450 800,520\" )",
+      "Bash(-fill '#f7f7f7' -draw \"rectangle 402,452 798,518\" )",
+      "Bash(-fill '#000000' -pointsize 18 -gravity center -annotate +0+150 'Click to explore workflows' )",
+      "Bash(public/og-mac.png)"
     ],
     "deny": []
   }

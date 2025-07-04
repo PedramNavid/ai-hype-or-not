@@ -184,6 +184,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         alternates: {
             canonical: workflowUrl,
         },
+        other: {
+            'og:logo': `${siteUrl}/og-image.png`,
+        },
     }
 }
 
