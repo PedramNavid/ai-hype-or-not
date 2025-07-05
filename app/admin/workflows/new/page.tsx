@@ -6,6 +6,7 @@ import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import { ArrowLeft, Plus, Trash2, Globe, Home, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Modal } from "@/components/ui/modal"
 import { WebsiteParserForm } from "@/components/website-parser-form"
 import { TextParserForm } from "@/components/text-parser-form"
 
@@ -265,23 +266,19 @@ export default function NewWorkflowPage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {showWebsiteParser && (
-          <div className="mb-8">
-            <WebsiteParserForm
-              onParsedData={handleParsedData}
-              onCancel={() => setShowWebsiteParser(false)}
-            />
-          </div>
-        )}
+        <Modal isOpen={showWebsiteParser} onClose={() => setShowWebsiteParser(false)}>
+          <WebsiteParserForm
+            onParsedData={handleParsedData}
+            onCancel={() => setShowWebsiteParser(false)}
+          />
+        </Modal>
 
-        {showTextParser && (
-          <div className="mb-8">
-            <TextParserForm
-              onParsedData={handleParsedData}
-              onCancel={() => setShowTextParser(false)}
-            />
-          </div>
-        )}
+        <Modal isOpen={showTextParser} onClose={() => setShowTextParser(false)}>
+          <TextParserForm
+            onParsedData={handleParsedData}
+            onCancel={() => setShowTextParser(false)}
+          />
+        </Modal>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Info */}

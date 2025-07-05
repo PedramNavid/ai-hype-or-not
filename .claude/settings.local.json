@@ -24,7 +24,13 @@
       "Bash(-fill '#000000' -draw \"rectangle 400,450 800,520\" )",
       "Bash(-fill '#f7f7f7' -draw \"rectangle 402,452 798,518\" )",
       "Bash(-fill '#000000' -pointsize 18 -gravity center -annotate +0+150 'Click to explore workflows' )",
-      "Bash(public/og-mac.png)"
+      "Bash(public/og-mac.png)",
+      "mcp__linear__list_projects",
+      "mcp__linear__list_teams",
+      "mcp__linear__create_issue",
+      "mcp__linear__get_issue",
+      "mcp__linear__update_issue",
+      "mcp__linear__list_issue_statuses"
     ],
     "deny": []
   }
