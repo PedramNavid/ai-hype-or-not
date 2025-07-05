@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
     subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://hypeflo.ws'
+const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.hypeflo.ws'
 const ogImageUrl = `${siteUrl}/og-image.png`
 
 export const metadata: Metadata = {
